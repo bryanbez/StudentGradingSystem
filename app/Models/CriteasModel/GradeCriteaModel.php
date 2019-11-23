@@ -83,7 +83,6 @@ class GradeCriteaModel extends Model
             - (SELECT COUNT(student_lrn) FROM tblProjects WHERE student_lrn=$student_lrn))
           * 65 + (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn)) 
           /  (SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1)
-        /* LOWER */
          ELSE (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn) / (SELECT COUNT(student_lrn) AS project_count FROM tblProjects WHERE student_lrn=$student_lrn)
          END) AS finalGrade,
         (((SELECT percentage FROM tblGradeCritea WHERE critea='Project') * (CASE WHEN COUNT(student_lrn) < (SELECT COUNT(student_lrn) FROM tblProjects GROUP BY student_lrn LIMIT 1) 
@@ -91,9 +90,8 @@ class GradeCriteaModel extends Model
             - (SELECT COUNT(student_lrn) FROM tblProjects WHERE student_lrn=$student_lrn))
           * 65 + (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn)) 
           /  (SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1)
-        /* LOWER */
          ELSE (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn) / (SELECT COUNT(student_lrn) AS project_count FROM tblProjects WHERE student_lrn=$student_lrn)
-         END)) / 100) as equivalent
+         END)) / 100) AS equivalent
         FROM tblProjects WHERE student_lrn=$student_lrn GROUP BY student_lrn");
 
         if(count($projectResult) === 0) {
@@ -167,8 +165,8 @@ class GradeCriteaModel extends Model
         $critea_count => 0,
         'critea_name' => DB::select("SELECT critea FROM tblGradeCritea WHERE critea='$critea_name'")[0]->critea,
         'critea_percentage' => DB::select("SELECT percentage FROM tblGradeCritea WHERE critea='$critea_name'")[0]->percentage,
-        'finalGrade' => 65,
-        'equivalent' => (65 * (DB::select("SELECT percentage FROM tblGradeCritea WHERE critea='$critea_name'")[0]->percentage)) / 100,
+        'finalGrade' => 50,
+        'equivalent' => (50 * (DB::select("SELECT percentage FROM tblGradeCritea WHERE critea='$critea_name'")[0]->percentage)) / 100,
     ]];
 
     }

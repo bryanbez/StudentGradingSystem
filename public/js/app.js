@@ -1972,6 +1972,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1985,14 +1995,28 @@ __webpack_require__.r(__webpack_exports__);
         sltYear: '',
         txtSection: '',
         txtBldgRmNo: ''
-      }
+      },
+      statusOfUpdate: '',
+      insertMsg: ''
     };
   },
   methods: {
     passAllInputs: function passAllInputs() {
+      var _this = this;
+
       axios.post('http://localhost:8000/api/students', this.studentInfo).then(function (response) {
-        return console.log(response);
+        console.log(response);
+        _this.statusOfUpdate = response.status;
+        _this.insertMsg = response.data;
+      })["catch"](function (error) {
+        _this.statusOfUpdate = error.response.status;
+        _this.insertMsg = error.response.data.errors;
       });
+    }
+  },
+  filters: {
+    trimCharacters: function trimCharacters(value) {
+      return value.toString();
     }
   }
 });
@@ -3086,11 +3110,49 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       student_lrn: '',
-      studentInfo: []
+      studentInfoToFetch: [],
+      studentInfo: {
+        txtLRN: '',
+        txtFirstName: '',
+        txtMiddleName: '',
+        txtLastName: '',
+        txtAge: '',
+        sltGender: '',
+        sltYear: '',
+        txtSection: '',
+        txtBldgRmNo: ''
+      },
+      updateMsg: '',
+      statusOfUpdate: ''
     };
   },
   created: function created() {
@@ -3098,14 +3160,48 @@ __webpack_require__.r(__webpack_exports__);
 
     this.student_lrn = this.$route.params.student_lrn;
     axios.get('http://localhost:8000/api/student/' + this.student_lrn).then(function (response) {
-      _this.studentInfo = response.data[0];
+      _this.studentInfoToFetch = response.data[0];
       console.log(_this.studentInfo);
     });
   },
-  methods: {},
+  methods: {
+    putFetchedRecordInInputs: function putFetchedRecordInInputs() {
+      this.studentInfo.txtLRN = this.student_lrn;
+      this.studentInfo.txtFirstName = this.studentInfoToFetch.studentFirstName;
+      this.studentInfo.txtLastName = this.studentInfoToFetch.studentLastName;
+      this.studentInfo.txtMiddleName = this.studentInfoToFetch.studentMiddleName;
+      this.studentInfo.txtAge = this.studentInfoToFetch.studentAge;
+      this.studentInfo.sltGender = this.studentInfoToFetch.studentGender;
+      this.studentInfo.sltYear = this.studentInfoToFetch.schoolYear;
+      this.studentInfo.txtSection = this.studentInfoToFetch.section;
+      this.studentInfo.txtBldgRmNo = this.studentInfoToFetch.bldg_rmNo;
+    },
+    updateStudentInformation: function updateStudentInformation() {
+      var _this2 = this;
+
+      axios.put("http://localhost:8000/api/students/".concat(this.student_lrn), this.studentInfo).then(function (response) {
+        console.log(response);
+        _this2.updateMsg = response.data;
+        _this2.statusOfUpdate = response.status;
+
+        _this2.refreshData();
+      })["catch"](function (error) {
+        _this2.statusOfUpdate = error.response.status;
+        _this2.updateMsg = error.response.data.errors;
+      });
+    },
+    refreshData: function refreshData() {
+      var _this3 = this;
+
+      axios.get('http://localhost:8000/api/student/' + this.student_lrn).then(function (response) {
+        _this3.studentInfoToFetch = response.data[0];
+        console.log(_this3.studentInfo);
+      });
+    }
+  },
   filters: {
-    toUppercase: function toUppercase(value) {
-      return value.toUpperCase();
+    trimCharacters: function trimCharacters(value) {
+      return value.toString();
     }
   }
 });
@@ -3122,6 +3218,67 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Layouts_ManageStudentGrades_AllCritea__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Layouts/ManageStudentGrades/AllCritea */ "./resources/js/components/Layouts/ManageStudentGrades/AllCritea.vue");
+/* harmony import */ var _Layouts_ManageStudentGrades_AddStudent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Layouts/ManageStudentGrades/AddStudent */ "./resources/js/components/Layouts/ManageStudentGrades/AddStudent.vue");
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -3150,23 +3307,152 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
-    AllCritea: _Layouts_ManageStudentGrades_AllCritea__WEBPACK_IMPORTED_MODULE_0__["default"]
+    AllCritea: _Layouts_ManageStudentGrades_AllCritea__WEBPACK_IMPORTED_MODULE_0__["default"],
+    AddStudent: _Layouts_ManageStudentGrades_AddStudent__WEBPACK_IMPORTED_MODULE_1__["default"]
   },
   data: function data() {
     return {
-      studentList: []
+      studentList: [],
+      studentYear: [],
+      sltLrnYear: '',
+      pagination: {
+        prevURL: '',
+        nextURL: '',
+        firstURL: '',
+        lastURL: '',
+        currPage: '',
+        lastPage: ''
+      },
+      isPrev: false,
+      isNext: false,
+      isLast: false,
+      isFirst: false,
+      searchText: ''
     };
   },
   created: function created() {
     var _this = this;
 
     axios.get('http://localhost:8000/api/students').then(function (response) {
-      _this.studentList = response.data.data;
+      console.log(response);
+
+      _this.paginationDatas(response);
+
+      _this.isPrev = true;
+      _this.isFirst = true;
+
+      if (response.data.next_page_url === null) {
+        _this.isLast = true;
+        _this.isNext = true;
+      }
+    });
+    axios.get('http://localhost:8000/api/fetchStudentYearInLRN').then(function (response) {
+      console.log(response);
+      _this.studentYear = response.data;
     });
   },
-  methods: {},
+  methods: {
+    sortByYear: function sortByYear() {
+      var _this2 = this;
+
+      axios.get("http://localhost:8000/api/fetchStudentsBaseInYearLRN/".concat(this.sltLrnYear)).then(function (response) {
+        console.log(response);
+        _this2.studentList = response.data; // this.paginationDatas(response);
+      });
+    },
+    defaultList: function defaultList() {
+      var _this3 = this;
+
+      axios.get('http://localhost:8000/api/students').then(function (response) {
+        console.log(response);
+
+        _this3.paginationDatas(response);
+      });
+    },
+    paginationNextPage: function paginationNextPage() {
+      var _this4 = this;
+
+      axios.get(this.pagination.nextURL).then(function (response) {
+        _this4.paginationDatas(response);
+
+        if (response.data.next_page_url === null) {
+          _this4.isLast = true;
+          _this4.isNext = true;
+        }
+
+        _this4.isFirst = false;
+        _this4.isPrev = false;
+      });
+    },
+    paginationPreviousPage: function paginationPreviousPage() {
+      var _this5 = this;
+
+      axios.get(this.pagination.prevURL).then(function (response) {
+        _this5.paginationDatas(response);
+
+        if (response.data.prev_page_url === null) {
+          _this5.isFirst = true;
+          _this5.isPrev = true;
+        }
+
+        _this5.isNext = false;
+        _this5.isLast = false;
+      });
+    },
+    paginationFirstPage: function paginationFirstPage() {
+      var _this6 = this;
+
+      axios.get(this.pagination.firstURL).then(function (response) {
+        _this6.paginationDatas(response);
+
+        if (response.data.prev_page_url === null) {
+          _this6.isFirst = true;
+          _this6.isPrev = true;
+        }
+
+        _this6.isNext = false;
+        _this6.isLast = false;
+      });
+    },
+    paginationLastPage: function paginationLastPage() {
+      var _this7 = this;
+
+      axios.get(this.pagination.lastURL).then(function (response) {
+        _this7.paginationDatas(response);
+
+        if (response.data.next_page_url === null) {
+          _this7.isLast = true;
+          _this7.isNext = true;
+        }
+
+        _this7.isFirst = false;
+        _this7.isPrev = false;
+      });
+    },
+    searchStudentName: function searchStudentName() {
+      var _this8 = this;
+
+      if (this.searchText == '') {
+        return this.defaultList();
+      } else {
+        axios.get("http://localhost:8000/api/students/search/".concat(this.searchText)).then(function (response) {
+          _this8.paginationDatas(response);
+        });
+      }
+    },
+    paginationDatas: function paginationDatas(response) {
+      this.studentList = response.data.data;
+      this.pagination.currPage = response.data.current_page;
+      this.pagination.lastPage = response.data.last_page;
+      this.pagination.firstURL = response.data.first_page_url;
+      this.pagination.lastURL = response.data.last_page_url;
+      this.pagination.nextURL = response.data.next_page_url;
+      this.pagination.prevURL = response.data.prev_page_url;
+    }
+  },
   filters: {
     filterYear: function filterYear(value) {
       if (value == 1) {
@@ -7661,7 +7947,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/c
 
 
 // module
-exports.push([module.i, "\ninput[data-v-dccef6f0] {\n    width: 100%;\n}\n", ""]);
+exports.push([module.i, "\ninput[data-v-dccef6f0] {\n    width: 100%;\n}\n.error[data-v-dccef6f0] {\n    color: brown;\n}\n\n", ""]);
 
 // exports
 
@@ -7737,7 +8023,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/c
 
 
 // module
-exports.push([module.i, "\n.card[data-v-763992d8] {\n    font-size: 15px;\n}\n", ""]);
+exports.push([module.i, "\n.card[data-v-763992d8] {\n    font-size: 15px;\n}\n.error[data-v-763992d8] {\n    color: brown;\n}\n", ""]);
 
 // exports
 
@@ -39522,10 +39808,6 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container" }, [
-    _c("h3", [_vm._v("Add Student")]),
-    _vm._v(" "),
-    _c("br"),
-    _vm._v(" "),
     _c(
       "form",
       {
@@ -39538,6 +39820,14 @@ var render = function() {
         }
       },
       [
+        _vm.statusOfUpdate === 200
+          ? _c("div", { staticClass: "alert alert-success" }, [
+              _vm._v(
+                "\n                " + _vm._s(_vm.insertMsg) + "\n            "
+              )
+            ])
+          : _vm._e(),
+        _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
           _c("label", { attrs: { for: "" } }, [_vm._v("Student LRN")]),
           _vm._v(" "),
@@ -39561,7 +39851,17 @@ var render = function() {
                 _vm.$set(_vm.studentInfo, "txtLRN", $event.target.value)
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.txtLRN
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.txtLRN)) +
+                    " "
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39587,7 +39887,16 @@ var render = function() {
                 _vm.$set(_vm.studentInfo, "txtFirstName", $event.target.value)
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.txtFirstName
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.txtFirstName))
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39613,7 +39922,18 @@ var render = function() {
                 _vm.$set(_vm.studentInfo, "txtMiddleName", $event.target.value)
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.txtMiddleName
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(
+                      _vm._f("trimCharacters")(_vm.insertMsg.txtMiddleName)
+                    )
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39639,7 +39959,16 @@ var render = function() {
                 _vm.$set(_vm.studentInfo, "txtLastName", $event.target.value)
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.txtLastName
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.txtLastName))
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39665,7 +39994,15 @@ var render = function() {
                 _vm.$set(_vm.studentInfo, "txtAge", $event.target.value)
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.txtAge
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " + _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.txtAge))
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39715,7 +40052,16 @@ var render = function() {
               _vm._v(" "),
               _c("option", { attrs: { value: "other" } }, [_vm._v("Other")])
             ]
-          )
+          ),
+          _vm._v(" "),
+          _vm.insertMsg.sltGender
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.sltGender))
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39767,7 +40113,15 @@ var render = function() {
               _vm._v(" "),
               _c("option", { attrs: { value: "4" } }, [_vm._v("4th Year")])
             ]
-          )
+          ),
+          _vm._v(" "),
+          _vm.insertMsg.sltYear
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " + _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.sltYear))
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39793,7 +40147,16 @@ var render = function() {
                 _vm.$set(_vm.studentInfo, "txtSection", $event.target.value)
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.txtSection
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.txtSection))
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
@@ -39819,7 +40182,16 @@ var render = function() {
                 _vm.$set(_vm.studentInfo, "txtBldgRmNo", $event.target.value)
               }
             }
-          })
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.txtBldgRmNo
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(_vm._f("trimCharacters")(_vm.insertMsg.txtBldgRmNo))
+                )
+              ])
+            : _vm._e()
         ]),
         _vm._v(" "),
         _vm._m(0)
@@ -39837,9 +40209,7 @@ var staticRenderFns = [
         "button",
         { staticClass: "btn btn-primary", attrs: { type: "submit" } },
         [_vm._v("Add Student")]
-      ),
-      _vm._v(" "),
-      _c("button", { staticClass: "btn btn-danger" }, [_vm._v("Back")])
+      )
     ])
   }
 ]
@@ -41764,35 +42134,49 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "card-body" }, [
         _c("p", [
-          _vm._v(" Full Name: "),
-          _c("b", [_vm._v(" " + _vm._s(_vm.studentInfo.FullName) + " ")])
-        ]),
-        _vm._v(" "),
-        _c("p", [
-          _vm._v(" Age: "),
-          _c("b", [_vm._v(_vm._s(_vm.studentInfo.studentAge))])
-        ]),
-        _vm._v(" "),
-        _c("p", [
-          _vm._v(" Gender: "),
+          _vm._v(" Last Name: "),
           _c("b", [
-            _vm._v(_vm._s(_vm._f("toUppercase")(_vm.studentInfo.studentGender)))
+            _vm._v(" " + _vm._s(_vm.studentInfoToFetch.studentLastName) + " ")
           ])
         ]),
         _vm._v(" "),
         _c("p", [
+          _vm._v(" First Name: "),
+          _c("b", [
+            _vm._v(" " + _vm._s(_vm.studentInfoToFetch.studentFirstName) + " ")
+          ])
+        ]),
+        _vm._v(" "),
+        _c("p", [
+          _vm._v(" Middle Name: "),
+          _c("b", [
+            _vm._v(" " + _vm._s(_vm.studentInfoToFetch.studentMiddleName) + " ")
+          ])
+        ]),
+        _vm._v(" "),
+        _c("p", [
+          _vm._v(" Age: "),
+          _c("b", [_vm._v(_vm._s(_vm.studentInfoToFetch.studentAge))])
+        ]),
+        _vm._v(" "),
+        _c("p", [
+          _vm._v(" Gender: "),
+          _c("b", [_vm._v(_vm._s(_vm.studentInfoToFetch.studentGender))])
+        ]),
+        _vm._v(" "),
+        _c("p", [
           _vm._v(" Year: "),
-          _c("b", [_vm._v(_vm._s(_vm.studentInfo.schoolYear))])
+          _c("b", [_vm._v(_vm._s(_vm.studentInfoToFetch.schoolYear))])
         ]),
         _vm._v(" "),
         _c("p", [
           _vm._v(" Section: "),
-          _c("b", [_vm._v(_vm._s(_vm.studentInfo.section))])
+          _c("b", [_vm._v(_vm._s(_vm.studentInfoToFetch.section))])
         ]),
         _vm._v(" "),
         _c("p", [
           _vm._v(" Bldg/Rm No: "),
-          _c("b", [_vm._v(_vm._s(_vm.studentInfo.bldg_rmNo))])
+          _c("b", [_vm._v(_vm._s(_vm.studentInfoToFetch.bldg_rmNo))])
         ])
       ]),
       _vm._v(" "),
@@ -41800,9 +42184,22 @@ var render = function() {
         "div",
         { staticClass: "card-footer" },
         [
-          _c("button", { staticClass: "btn btn-primary" }, [
-            _vm._v(" Modify Information")
-          ]),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-primary",
+              attrs: {
+                "data-toggle": "modal",
+                "data-target": "#modifyStudentInfo"
+              },
+              on: {
+                click: function($event) {
+                  return _vm.putFetchedRecordInInputs()
+                }
+              }
+            },
+            [_vm._v(" Modify Information")]
+          ),
           _vm._v(" "),
           _c(
             "router-link",
@@ -41816,313 +42213,483 @@ var render = function() {
     _vm._v(" "),
     _c("br"),
     _vm._v(" "),
-    _c("div", { attrs: { id: "modifyStudentInfo" } }, [
-      _c(
-        "form",
-        {
-          attrs: { action: "" },
-          on: {
-            submit: function($event) {
-              $event.preventDefault()
-              return _vm.passAllInputs()
-            }
-          }
-        },
-        [
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v("Student LRN")]),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: {
+          id: "modifyStudentInfo",
+          "tab-index": "-1",
+          role: "dialog",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c("div", { staticClass: "modal-dialog" }, [
+          _c("div", { staticClass: "modal-content" }, [
+            _vm._m(0),
             _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.studentInfo.txtLRN,
-                  expression: "studentInfo.txtLRN"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text" },
-              domProps: { value: _vm.studentInfo.txtLRN },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.studentInfo, "txtLRN", $event.target.value)
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" First Name")]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.studentInfo.txtFirstName,
-                  expression: "studentInfo.txtFirstName"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text" },
-              domProps: { value: _vm.studentInfo.txtFirstName },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.studentInfo, "txtFirstName", $event.target.value)
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" Middle Name")]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.studentInfo.txtMiddleName,
-                  expression: "studentInfo.txtMiddleName"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text" },
-              domProps: { value: _vm.studentInfo.txtMiddleName },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(
-                    _vm.studentInfo,
-                    "txtMiddleName",
-                    $event.target.value
-                  )
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" Last Name")]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.studentInfo.txtLastName,
-                  expression: "studentInfo.txtLastName"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text" },
-              domProps: { value: _vm.studentInfo.txtLastName },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.studentInfo, "txtLastName", $event.target.value)
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" Age ")]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.studentInfo.txtAge,
-                  expression: "studentInfo.txtAge"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text" },
-              domProps: { value: _vm.studentInfo.txtAge },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.studentInfo, "txtAge", $event.target.value)
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" Gender ")]),
-            _vm._v(" "),
-            _c(
-              "select",
-              {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.studentInfo.sltGender,
-                    expression: "studentInfo.sltGender"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { name: "", id: "" },
-                on: {
-                  change: function($event) {
-                    var $$selectedVal = Array.prototype.filter
-                      .call($event.target.options, function(o) {
-                        return o.selected
-                      })
-                      .map(function(o) {
-                        var val = "_value" in o ? o._value : o.value
-                        return val
-                      })
-                    _vm.$set(
-                      _vm.studentInfo,
-                      "sltGender",
-                      $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+            _c("div", { staticClass: "modal-body" }, [
+              _vm.statusOfUpdate == 200
+                ? _c("div", { staticClass: "alert alert-success" }, [
+                    _vm._v(
+                      "\n                                " +
+                        _vm._s(_vm.updateMsg) +
+                        "\n                            "
                     )
-                  }
-                }
-              },
-              [
-                _c(
-                  "option",
-                  { attrs: { value: "", selected: "", disabled: "" } },
-                  [_vm._v("Select Gender")]
-                ),
-                _vm._v(" "),
-                _c("option", { attrs: { value: "male" } }, [_vm._v("Male")]),
-                _vm._v(" "),
-                _c("option", { attrs: { value: "female" } }, [
-                  _vm._v("Female")
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _c("form", { attrs: { action: "" } }, [
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v("Student LRN")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.studentInfo.txtLRN,
+                        expression: "studentInfo.txtLRN"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text", disabled: "" },
+                    domProps: { value: _vm.studentInfo.txtLRN },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.studentInfo, "txtLRN", $event.target.value)
+                      }
+                    }
+                  })
                 ]),
                 _vm._v(" "),
-                _c("option", { attrs: { value: "other" } }, [_vm._v("Other")])
-              ]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" Year ")]),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v(" First Name")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.studentInfo.txtFirstName,
+                        expression: "studentInfo.txtFirstName"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text" },
+                    domProps: { value: _vm.studentInfo.txtFirstName },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(
+                          _vm.studentInfo,
+                          "txtFirstName",
+                          $event.target.value
+                        )
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.updateMsg.txtFirstName
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(
+                                _vm.updateMsg.txtFirstName
+                              )
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v(" Middle Name")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.studentInfo.txtMiddleName,
+                        expression: "studentInfo.txtMiddleName"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text" },
+                    domProps: { value: _vm.studentInfo.txtMiddleName },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(
+                          _vm.studentInfo,
+                          "txtMiddleName",
+                          $event.target.value
+                        )
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.updateMsg.txtMiddleName
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(
+                                _vm.updateMsg.txtMiddleName
+                              )
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v(" Last Name")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.studentInfo.txtLastName,
+                        expression: "studentInfo.txtLastName"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text" },
+                    domProps: { value: _vm.studentInfo.txtLastName },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(
+                          _vm.studentInfo,
+                          "txtLastName",
+                          $event.target.value
+                        )
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.updateMsg.txtLastName
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(
+                                _vm.updateMsg.txtLastName
+                              )
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v(" Age ")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.studentInfo.txtAge,
+                        expression: "studentInfo.txtAge"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text" },
+                    domProps: { value: _vm.studentInfo.txtAge },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(_vm.studentInfo, "txtAge", $event.target.value)
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.updateMsg.txtAge
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(_vm.updateMsg.txtAge)
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v(" Gender ")]),
+                  _vm._v(" "),
+                  _c(
+                    "select",
+                    {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.studentInfo.sltGender,
+                          expression: "studentInfo.sltGender"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: { name: "", id: "" },
+                      on: {
+                        change: function($event) {
+                          var $$selectedVal = Array.prototype.filter
+                            .call($event.target.options, function(o) {
+                              return o.selected
+                            })
+                            .map(function(o) {
+                              var val = "_value" in o ? o._value : o.value
+                              return val
+                            })
+                          _vm.$set(
+                            _vm.studentInfo,
+                            "sltGender",
+                            $event.target.multiple
+                              ? $$selectedVal
+                              : $$selectedVal[0]
+                          )
+                        }
+                      }
+                    },
+                    [
+                      _c(
+                        "option",
+                        { attrs: { value: "", selected: "", disabled: "" } },
+                        [_vm._v("Select Gender")]
+                      ),
+                      _vm._v(" "),
+                      _c("option", { attrs: { value: "male" } }, [
+                        _vm._v("Male")
+                      ]),
+                      _vm._v(" "),
+                      _c("option", { attrs: { value: "female" } }, [
+                        _vm._v("Female")
+                      ]),
+                      _vm._v(" "),
+                      _c("option", { attrs: { value: "other" } }, [
+                        _vm._v("Other")
+                      ])
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm.updateMsg.sltGender
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(_vm.updateMsg.sltGender)
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v(" Year ")]),
+                  _vm._v(" "),
+                  _c(
+                    "select",
+                    {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.studentInfo.sltYear,
+                          expression: "studentInfo.sltYear"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: { name: "", id: "" },
+                      on: {
+                        change: function($event) {
+                          var $$selectedVal = Array.prototype.filter
+                            .call($event.target.options, function(o) {
+                              return o.selected
+                            })
+                            .map(function(o) {
+                              var val = "_value" in o ? o._value : o.value
+                              return val
+                            })
+                          _vm.$set(
+                            _vm.studentInfo,
+                            "sltYear",
+                            $event.target.multiple
+                              ? $$selectedVal
+                              : $$selectedVal[0]
+                          )
+                        }
+                      }
+                    },
+                    [
+                      _c(
+                        "option",
+                        { attrs: { value: "", selected: "", disabled: "" } },
+                        [_vm._v("Select Year")]
+                      ),
+                      _vm._v(" "),
+                      _c("option", { attrs: { value: "1" } }, [
+                        _vm._v("1st Year")
+                      ]),
+                      _vm._v(" "),
+                      _c("option", { attrs: { value: "2" } }, [
+                        _vm._v("2nd Year")
+                      ]),
+                      _vm._v(" "),
+                      _c("option", { attrs: { value: "3" } }, [
+                        _vm._v("3rd Year")
+                      ]),
+                      _vm._v(" "),
+                      _c("option", { attrs: { value: "4" } }, [
+                        _vm._v("4th Year")
+                      ])
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _vm.updateMsg.sltYear
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(_vm.updateMsg.sltYear)
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [_vm._v(" Section ")]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.studentInfo.txtSection,
+                        expression: "studentInfo.txtSection"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text" },
+                    domProps: { value: _vm.studentInfo.txtSection },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(
+                          _vm.studentInfo,
+                          "txtSection",
+                          $event.target.value
+                        )
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.updateMsg.txtSection
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(_vm.updateMsg.txtSection)
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
+                  _c("label", { attrs: { for: "" } }, [
+                    _vm._v(" Bldg / Rm No ")
+                  ]),
+                  _vm._v(" "),
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.studentInfo.txtBldgRmNo,
+                        expression: "studentInfo.txtBldgRmNo"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text" },
+                    domProps: { value: _vm.studentInfo.txtBldgRmNo },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.$set(
+                          _vm.studentInfo,
+                          "txtBldgRmNo",
+                          $event.target.value
+                        )
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm.updateMsg.txtBldgRmNo
+                    ? _c("span", { staticClass: "error" }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(
+                              _vm._f("trimCharacters")(
+                                _vm.updateMsg.txtBldgRmNo
+                              )
+                            )
+                        )
+                      ])
+                    : _vm._e()
+                ])
+              ])
+            ]),
             _vm._v(" "),
-            _c(
-              "select",
-              {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.studentInfo.sltYear,
-                    expression: "studentInfo.sltYear"
-                  }
-                ],
-                staticClass: "form-control",
-                attrs: { name: "", id: "" },
-                on: {
-                  change: function($event) {
-                    var $$selectedVal = Array.prototype.filter
-                      .call($event.target.options, function(o) {
-                        return o.selected
-                      })
-                      .map(function(o) {
-                        var val = "_value" in o ? o._value : o.value
-                        return val
-                      })
-                    _vm.$set(
-                      _vm.studentInfo,
-                      "sltYear",
-                      $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-                    )
-                  }
-                }
-              },
-              [
-                _c(
-                  "option",
-                  { attrs: { value: "", selected: "", disabled: "" } },
-                  [_vm._v("Select Year")]
-                ),
-                _vm._v(" "),
-                _c("option", { attrs: { value: "1" } }, [_vm._v("1st Year")]),
-                _vm._v(" "),
-                _c("option", { attrs: { value: "2" } }, [_vm._v("2nd Year")]),
-                _vm._v(" "),
-                _c("option", { attrs: { value: "3" } }, [_vm._v("3rd Year")]),
-                _vm._v(" "),
-                _c("option", { attrs: { value: "4" } }, [_vm._v("4th Year")])
-              ]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" Section ")]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
+            _c("div", { staticClass: "modal-footer" }, [
+              _c(
+                "button",
                 {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.studentInfo.txtSection,
-                  expression: "studentInfo.txtSection"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text" },
-              domProps: { value: _vm.studentInfo.txtSection },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
+                  staticClass: "btn btn-primary",
+                  on: {
+                    click: function($event) {
+                      return _vm.updateStudentInformation()
+                    }
                   }
-                  _vm.$set(_vm.studentInfo, "txtSection", $event.target.value)
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-12 col-lg-12 mb-2" }, [
-            _c("label", { attrs: { for: "" } }, [_vm._v(" Bldg / Rm No ")]),
-            _vm._v(" "),
-            _c("input", {
-              directives: [
+                },
+                [_vm._v("Save Changes")]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
                 {
-                  name: "model",
-                  rawName: "v-model",
-                  value: _vm.studentInfo.txtBldgRmNo,
-                  expression: "studentInfo.txtBldgRmNo"
-                }
-              ],
-              staticClass: "form-control",
-              attrs: { type: "text" },
-              domProps: { value: _vm.studentInfo.txtBldgRmNo },
-              on: {
-                input: function($event) {
-                  if ($event.target.composing) {
-                    return
-                  }
-                  _vm.$set(_vm.studentInfo, "txtBldgRmNo", $event.target.value)
-                }
-              }
-            })
-          ]),
-          _vm._v(" "),
-          _vm._m(0)
-        ]
-      )
-    ])
+                  staticClass: "btn btn-danger",
+                  attrs: { "data-dismiss": "modal" }
+                },
+                [_vm._v("Back")]
+              )
+            ])
+          ])
+        ])
+      ]
+    )
   ])
 }
 var staticRenderFns = [
@@ -42130,14 +42697,23 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-12 col-lg-12 mt-5" }, [
+    return _c("div", { staticClass: "modal-header" }, [
+      _c("h5", { staticClass: "modal-title" }, [
+        _vm._v(" Update Student Information ")
+      ]),
+      _vm._v(" "),
       _c(
         "button",
-        { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-        [_vm._v("Add Student")]
-      ),
-      _vm._v(" "),
-      _c("button", { staticClass: "btn btn-danger" }, [_vm._v("Back")])
+        {
+          staticClass: "close",
+          attrs: {
+            type: "button",
+            "data-dismiss": "modal",
+            "aria-label": "close"
+          }
+        },
+        [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
+      )
     ])
   }
 ]
@@ -42169,6 +42745,167 @@ var render = function() {
     _vm._v(" "),
     _c("br"),
     _vm._v(" "),
+    _c("hr"),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-md-3 col-lg-3" }, [
+        _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-md-6" }, [
+            _c(
+              "select",
+              {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.sltLrnYear,
+                    expression: "sltLrnYear"
+                  }
+                ],
+                staticClass: "form-control",
+                on: {
+                  change: [
+                    function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.sltLrnYear = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    },
+                    _vm.sortByYear
+                  ]
+                }
+              },
+              [
+                _c(
+                  "option",
+                  { attrs: { value: "", disabled: "", selected: "" } },
+                  [_vm._v("Select Year")]
+                ),
+                _vm._v(" "),
+                _vm._l(_vm.studentYear, function(fetchYear) {
+                  return _c("option", { key: fetchYear.Year }, [
+                    _vm._v(" " + _vm._s(fetchYear.Year))
+                  ])
+                })
+              ],
+              2
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-md-6" }, [
+            _c(
+              "button",
+              { staticClass: "btn btn-info", on: { click: _vm.defaultList } },
+              [_vm._v("Clear Sort")]
+            )
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-md-4 col-lg-4" }, [
+        _c("div", { staticClass: "row" }, [
+          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isFirst },
+                on: { click: _vm.paginationFirstPage }
+              },
+              [_vm._v("First")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isPrev },
+                on: { click: _vm.paginationPreviousPage }
+              },
+              [_vm._v("Prev")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-md-4 col-lg-4" }, [
+            _c(
+              "h5",
+              [
+                _c("center", [
+                  _vm._v(
+                    " Page " +
+                      _vm._s(_vm.pagination.currPage) +
+                      " of " +
+                      _vm._s(_vm.pagination.lastPage)
+                  )
+                ])
+              ],
+              1
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isNext },
+                on: { click: _vm.paginationNextPage }
+              },
+              [_vm._v("Next")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isLast },
+                on: { click: _vm.paginationLastPage }
+              },
+              [_vm._v("Last")]
+            )
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _vm._m(0),
+      _vm._v(" "),
+      _c("div", { staticClass: "col-md-3 col-lg-3" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.searchText,
+              expression: "searchText"
+            }
+          ],
+          staticClass: "form-control",
+          attrs: { type: "text", placeholder: "Search Student" },
+          domProps: { value: _vm.searchText },
+          on: {
+            keyup: _vm.searchStudentName,
+            input: function($event) {
+              if ($event.target.composing) {
+                return
+              }
+              _vm.searchText = $event.target.value
+            }
+          }
+        })
+      ])
+    ]),
+    _vm._v(" "),
     _c(
       "table",
       { staticClass: "table table-bordered" },
@@ -42190,7 +42927,19 @@ var render = function() {
         _vm._v(" "),
         _vm._l(_vm.studentList, function(singleStudent) {
           return _c("tr", { key: singleStudent.student_lrn }, [
-            _c("td", [_vm._v(" " + _vm._s(singleStudent.FullName) + " ")]),
+            _c("td", [
+              _vm._v(
+                " " +
+                  _vm._s(
+                    singleStudent.studentLastName +
+                      ", " +
+                      singleStudent.studentFirstName +
+                      " " +
+                      singleStudent.studentMiddleName
+                  ) +
+                  " "
+              )
+            ]),
             _vm._v(" "),
             _c("td", [
               _vm._v(
@@ -42245,10 +42994,70 @@ var render = function() {
         })
       ],
       2
+    ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticClass: "modal fade",
+        attrs: {
+          id: "addStudentInfo",
+          "tab-index": "-1",
+          role: "dialog",
+          "aria-hidden": "true"
+        }
+      },
+      [
+        _c("div", { staticClass: "modal-dialog" }, [
+          _c("div", { staticClass: "modal-content" }, [
+            _vm._m(1),
+            _vm._v(" "),
+            _c("div", { staticClass: "modal-body" }, [_c("AddStudent")], 1),
+            _vm._v(" "),
+            _vm._m(2)
+          ])
+        ])
+      ]
     )
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-md-2 col-lg-2" }, [
+      _c(
+        "button",
+        {
+          staticClass: "btn btn-primary mb-3",
+          attrs: { "data-toggle": "modal", "data-target": "#addStudentInfo" }
+        },
+        [_vm._v(" Add Student ")]
+      )
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "modal-header" }, [
+      _c("h4", [_vm._v(" Add Student ")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "modal-footer" }, [
+      _c(
+        "button",
+        { staticClass: "btn btn-danger", attrs: { "data-dismiss": "modal" } },
+        [_vm._v(" Close ")]
+      )
+    ])
+  }
+]
 render._withStripped = true
 
 

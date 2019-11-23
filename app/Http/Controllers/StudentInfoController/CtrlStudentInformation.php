@@ -5,43 +5,48 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\StudentInfosModel\StudentInfomationModel as TblStudInfo;
+use App\Http\Requests\StoreOrUpdateStudentInfo;
+
 use DB;
 
 class CtrlStudentInformation extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+   
     public function index()
     {
-        $fetchAllStudent = TblStudInfo::
-                select(DB::raw('student_lrn, CONCAT(studentFirstName," ",studentLastName) AS FullName, studentAge, studentGender, schoolYear, section, bldg_rmNo'))
-                ->paginate(10);
-    
-        return response()->json($fetchAllStudent);
+        $fetchAllStudent = new TblStudInfo();
+        return response()->json($fetchAllStudent->fetchAllStudentRecords());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function yearOptions() {
+
+        $fetchYear = new TblStudInfo();
+        return $fetchYear->getStudentYear();
+    }
+
+    public function fetchStudentsByYearInLRN($year) {
+
+        $fetchYear = new TblStudInfo();
+        return $fetchYear->getAllStudentsByYear($year);
+    }
+
+    public function searchStudent($searchText) {
+
+        $searchKeyWord = new TblStudInfo();
+        return response()->json($searchKeyWord->searchStudentQuery($searchText));
+    
+    }
+
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function store(StoreOrUpdateStudentInfo $request)
     {
         try {
+            $validateBa = $request->validated();
+
             $addStudent = new TblStudInfo;
             $addStudent->student_lrn = $request->txtLRN;
             $addStudent->studentFirstName = $request->txtFirstName;
@@ -62,51 +67,41 @@ class CtrlStudentInformation extends Controller
       
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($student_lrn)
     {
         $fetchSpecificStudent = TblStudInfo::
-                select(DB::raw('student_lrn, CONCAT(studentFirstName," ",studentLastName) AS FullName, studentAge, studentGender, schoolYear, section, bldg_rmNo'))
+                select(DB::raw('student_lrn, studentLastName, studentFirstName, studentMiddleName, studentAge, studentGender, schoolYear, section, bldg_rmNo'                                                                         ))
                 ->where('student_lrn', $student_lrn)
                 ->get();
     
         return response()->json($fetchSpecificStudent);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(StoreOrUpdateStudentInfo $request, $id)
     {
-        //
+
+            $validateBa = $request->validated();
+          
+            $updateStudentRecord = TblStudInfo::where('student_lrn', $id)->update([
+                'studentLastName' => $request->txtLastName,
+                'studentFirstName' => $request->txtFirstName,
+                'studentMiddleName' => $request->txtMiddleName,
+                'studentAge' => $request->txtAge,
+                'studentGender' => $request->sltGender,
+                'schoolYear' => $request->sltYear,
+                'section' => $request->txtSection,
+                'bldg_rmNo' => $request->txtBldgRmNo
+            ]);
+                
+            return response()->json('Student Record Successfully Updated');
+         
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         //
