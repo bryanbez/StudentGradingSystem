@@ -2,6 +2,9 @@
 
 use Illuminate\Database\Seeder;
 
+use Faker\Factory as Faker;
+
+
 class StudentsSeeder extends Seeder
 {
     /**
@@ -13,17 +16,24 @@ class StudentsSeeder extends Seeder
     {
 
         $arrayYear = array('2014', '2015', '2016', '2017', '2018', '2019');
+        $arrayGender = array('male', 'female');
+        $arraySchoolYear = array('1', '2', '3', '4');
 
-        DB::table('tblStudentInfo')->insert([
-            'student_lrn' => $arrayYear[array_rand($arrayYear)].''.str_pad(rand(0, pow(10, 4) - 1), 4, '0', STR_PAD_LEFT),
-            'studentLastName' => str_random(10),
-            'studentMiddleName' => str_random(10),
-            'studentFirstName' => str_random(10),
-            'studentAge' => rand(16, 32),
-            'studentGender' => array_rand(array('male', 'female')),
-            'schoolYear' => array_rand(array('1st', '2nd', '3rd', '4th')),
-            'section' => rand(1, 20),
-            'bldg_rmNo' => rand(1, 4)
-        ]);
+        $faker = Faker::create();
+    	foreach (range(1,500) as $index) {
+	       
+            DB::table('tblStudentInfo')->insert([
+                'student_lrn' => $arrayYear[array_rand($arrayYear)].''.str_pad(rand(0, pow(10, 4) - 1), 4, '0', STR_PAD_LEFT),
+                'studentLastName' => $faker->lastName,
+                'studentMiddleName' => $faker->lastName,
+                'studentFirstName' => $faker->lastName,
+                'studentAge' => rand(16, 32),
+                'studentGender' => $arrayGender[array_rand($arrayGender)],
+                'schoolYear' => $arraySchoolYear[array_rand($arraySchoolYear)],
+                'section' => rand(1, 9),
+                'bldg_rmNo' => rand(1, 4).''.rand(1, 20)
+            ]);
+    
+	}
     }
 }

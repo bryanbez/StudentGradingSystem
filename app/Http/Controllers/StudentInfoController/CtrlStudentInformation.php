@@ -24,10 +24,17 @@ class CtrlStudentInformation extends Controller
         return $fetchYear->getStudentYear();
     }
 
-    public function fetchStudentsByYearInLRN($year) {
+    public function sectionOptions() {
+
+        $fetchSection = new TblStudInfo();
+        return $fetchSection->getStudentSection();
+    }
+
+
+    public function fetchStudentsByYearInLRN($year, $section) {
 
         $fetchYear = new TblStudInfo();
-        return $fetchYear->getAllStudentsByYear($year);
+        return $fetchYear->getAllStudentsByYearAndSection($year, $section);
     }
 
     public function searchStudent($searchText) {
@@ -44,26 +51,17 @@ class CtrlStudentInformation extends Controller
 
     public function store(StoreOrUpdateStudentInfo $request)
     {
-        try {
-            $validateBa = $request->validated();
+        
+         $validateBa = $request->validated();
+         $insertRecord = new TblStudInfo();
 
-            $addStudent = new TblStudInfo;
-            $addStudent->student_lrn = $request->txtLRN;
-            $addStudent->studentFirstName = $request->txtFirstName;
-            $addStudent->studentLastName = $request->txtLastName;
-            $addStudent->studentMiddleName = $request->txtMiddleName;
-            $addStudent->studentAge = $request->txtAge;
-            $addStudent->studentGender = $request->sltGender;
-            $addStudent->schoolYear = $request->sltYear;
-            $addStudent->section = $request->txtSection;
-            $addStudent->bldg_rmNo = $request->txtBldgRmNo;
-            $addStudent->save();
+         if($insertRecord->checkDuplicateStudentLRN($request->txtLRN)->isEmpty()){
+            return $insertRecord->store($request);
+         }
+         else {
+            return response()->json('Duplicate Student LRN');
+         }
     
-            return response()->json('Student Information Successfully Inserted');
-        }
-        catch(Exception $e) {
-            return $e;
-        }
       
     }
 

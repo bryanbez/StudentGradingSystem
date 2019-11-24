@@ -1894,9 +1894,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({});
 
 /***/ }),
@@ -3306,6 +3303,22 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -3317,7 +3330,9 @@ __webpack_require__.r(__webpack_exports__);
     return {
       studentList: [],
       studentYear: [],
+      studentSection: [],
       sltLrnYear: '',
+      sltLrnSection: '',
       pagination: {
         prevURL: '',
         nextURL: '',
@@ -3353,15 +3368,48 @@ __webpack_require__.r(__webpack_exports__);
       console.log(response);
       _this.studentYear = response.data;
     });
+    axios.get('http://localhost:8000/api/fetchStudentSection').then(function (response) {
+      console.log(response);
+      _this.studentSection = response.data;
+    });
   },
   methods: {
-    sortByYear: function sortByYear() {
+    sortByYearAndSection: function sortByYearAndSection() {
       var _this2 = this;
 
-      axios.get("http://localhost:8000/api/fetchStudentsBaseInYearLRN/".concat(this.sltLrnYear)).then(function (response) {
-        console.log(response);
-        _this2.studentList = response.data; // this.paginationDatas(response);
-      });
+      if (this.sltLrnSection == '') {
+        axios.get("http://localhost:8000/api/fetchStudentsBaseInYearLRN/".concat(this.sltLrnYear, "/NULL")).then(function (response) {
+          console.log(response); //this.studentList = response.data;
+
+          _this2.paginationDatas(response);
+
+          _this2.isPrev = true;
+          _this2.isFirst = true;
+          _this2.isLast = false;
+          _this2.isNext = false;
+
+          if (response.data.next_page_url === null) {
+            _this2.isLast = true;
+            _this2.isNext = true;
+          }
+        });
+      } else {
+        axios.get("http://localhost:8000/api/fetchStudentsBaseInYearLRN/".concat(this.sltLrnYear, "/").concat(this.sltLrnSection)).then(function (response) {
+          console.log(response); //this.studentList = response.data;
+
+          _this2.paginationDatas(response);
+
+          _this2.isPrev = true;
+          _this2.isFirst = true;
+          _this2.isLast = false;
+          _this2.isNext = false;
+
+          if (response.data.next_page_url === null) {
+            _this2.isLast = true;
+            _this2.isNext = true;
+          }
+        });
+      }
     },
     defaultList: function defaultList() {
       var _this3 = this;
@@ -3370,6 +3418,19 @@ __webpack_require__.r(__webpack_exports__);
         console.log(response);
 
         _this3.paginationDatas(response);
+
+        _this3.isPrev = true;
+        _this3.isFirst = true;
+        _this3.isLast = false;
+        _this3.isNext = false;
+
+        if (response.data.next_page_url === null) {
+          _this3.isLast = true;
+          _this3.isNext = true;
+        }
+
+        _this3.sltLrnYear = '';
+        _this3.sltLrnSection = '';
       });
     },
     paginationNextPage: function paginationNextPage() {
@@ -3454,7 +3515,7 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   filters: {
-    filterYear: function filterYear(value) {
+    schoolYear: function schoolYear(value) {
       if (value == 1) {
         return '1st';
       } else if (value == 2) {
@@ -3463,7 +3524,7 @@ __webpack_require__.r(__webpack_exports__);
         return '3rd';
       } else if (value == 4) {
         return '4th';
-      } else {//Wala
+      } else {// Null
       }
     }
   }
@@ -39716,19 +39777,6 @@ var render = function() {
                   [
                     _c(
                       "router-link",
-                      { staticClass: "nav-link", attrs: { to: "/addstudent" } },
-                      [_vm._v("Add Student")]
-                    )
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _c(
-                  "li",
-                  { staticClass: "nav-item" },
-                  [
-                    _c(
-                      "router-link",
                       {
                         staticClass: "nav-link",
                         attrs: { to: "/managegrades" }
@@ -39821,7 +39869,7 @@ var render = function() {
       },
       [
         _vm.statusOfUpdate === 200
-          ? _c("div", { staticClass: "alert alert-success" }, [
+          ? _c("div", { staticClass: "alert alert-info" }, [
               _vm._v(
                 "\n                " + _vm._s(_vm.insertMsg) + "\n            "
               )
@@ -42748,132 +42796,119 @@ var render = function() {
     _c("hr"),
     _vm._v(" "),
     _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-md-3 col-lg-3" }, [
+      _c("div", { staticClass: "col-md-6 col-lg-6" }, [
         _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-md-6" }, [
-            _c(
-              "select",
-              {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.sltLrnYear,
-                    expression: "sltLrnYear"
-                  }
-                ],
-                staticClass: "form-control",
-                on: {
-                  change: [
-                    function($event) {
-                      var $$selectedVal = Array.prototype.filter
-                        .call($event.target.options, function(o) {
-                          return o.selected
-                        })
-                        .map(function(o) {
-                          var val = "_value" in o ? o._value : o.value
-                          return val
-                        })
-                      _vm.sltLrnYear = $event.target.multiple
-                        ? $$selectedVal
-                        : $$selectedVal[0]
-                    },
-                    _vm.sortByYear
-                  ]
-                }
-              },
-              [
+          _c("table", [
+            _c("tr", [
+              _c("td", [
                 _c(
-                  "option",
-                  { attrs: { value: "", disabled: "", selected: "" } },
-                  [_vm._v("Select Year")]
-                ),
-                _vm._v(" "),
-                _vm._l(_vm.studentYear, function(fetchYear) {
-                  return _c("option", { key: fetchYear.Year }, [
-                    _vm._v(" " + _vm._s(fetchYear.Year))
-                  ])
-                })
-              ],
-              2
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-6" }, [
-            _c(
-              "button",
-              { staticClass: "btn btn-info", on: { click: _vm.defaultList } },
-              [_vm._v("Clear Sort")]
-            )
-          ])
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "col-md-4 col-lg-4" }, [
-        _c("div", { staticClass: "row" }, [
-          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn btn-info",
-                attrs: { disabled: _vm.isFirst },
-                on: { click: _vm.paginationFirstPage }
-              },
-              [_vm._v("First")]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn btn-info",
-                attrs: { disabled: _vm.isPrev },
-                on: { click: _vm.paginationPreviousPage }
-              },
-              [_vm._v("Prev")]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-4 col-lg-4" }, [
-            _c(
-              "h5",
-              [
-                _c("center", [
-                  _vm._v(
-                    " Page " +
-                      _vm._s(_vm.pagination.currPage) +
-                      " of " +
-                      _vm._s(_vm.pagination.lastPage)
-                  )
-                ])
-              ],
-              1
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn btn-info",
-                attrs: { disabled: _vm.isNext },
-                on: { click: _vm.paginationNextPage }
-              },
-              [_vm._v("Next")]
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-2 col-lg-2" }, [
-            _c(
-              "button",
-              {
-                staticClass: "btn btn-info",
-                attrs: { disabled: _vm.isLast },
-                on: { click: _vm.paginationLastPage }
-              },
-              [_vm._v("Last")]
-            )
+                  "select",
+                  {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.sltLrnYear,
+                        expression: "sltLrnYear"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    on: {
+                      change: [
+                        function($event) {
+                          var $$selectedVal = Array.prototype.filter
+                            .call($event.target.options, function(o) {
+                              return o.selected
+                            })
+                            .map(function(o) {
+                              var val = "_value" in o ? o._value : o.value
+                              return val
+                            })
+                          _vm.sltLrnYear = $event.target.multiple
+                            ? $$selectedVal
+                            : $$selectedVal[0]
+                        },
+                        _vm.sortByYearAndSection
+                      ]
+                    }
+                  },
+                  [
+                    _c(
+                      "option",
+                      { attrs: { value: "", disabled: "", selected: "" } },
+                      [_vm._v("Select Year")]
+                    ),
+                    _vm._v(" "),
+                    _vm._l(_vm.studentYear, function(fetchYear) {
+                      return _c("option", { key: fetchYear.Year }, [
+                        _vm._v(" " + _vm._s(fetchYear.Year))
+                      ])
+                    })
+                  ],
+                  2
+                )
+              ]),
+              _vm._v(" "),
+              _c("td", [
+                _c(
+                  "select",
+                  {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.sltLrnSection,
+                        expression: "sltLrnSection"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    on: {
+                      change: [
+                        function($event) {
+                          var $$selectedVal = Array.prototype.filter
+                            .call($event.target.options, function(o) {
+                              return o.selected
+                            })
+                            .map(function(o) {
+                              var val = "_value" in o ? o._value : o.value
+                              return val
+                            })
+                          _vm.sltLrnSection = $event.target.multiple
+                            ? $$selectedVal
+                            : $$selectedVal[0]
+                        },
+                        _vm.sortByYearAndSection
+                      ]
+                    }
+                  },
+                  [
+                    _c(
+                      "option",
+                      { attrs: { value: "", disabled: "", selected: "" } },
+                      [_vm._v("Select Section")]
+                    ),
+                    _vm._v(" "),
+                    _vm._l(_vm.studentSection, function(fetchSection) {
+                      return _c("option", { key: fetchSection.section }, [
+                        _vm._v(" " + _vm._s(fetchSection.section))
+                      ])
+                    })
+                  ],
+                  2
+                )
+              ]),
+              _vm._v(" "),
+              _c("td", [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-info",
+                    on: { click: _vm.defaultList }
+                  },
+                  [_vm._v("Clear Sort")]
+                )
+              ])
+            ])
           ])
         ])
       ]),
@@ -42906,95 +42941,168 @@ var render = function() {
       ])
     ]),
     _vm._v(" "),
-    _c(
-      "table",
-      { staticClass: "table table-bordered" },
-      [
+    _c("div", { staticClass: "row float-right" }, [
+      _c("table", [
         _c("tr", [
-          _c("th", [_vm._v("Student Name")]),
-          _vm._v(" "),
-          _c("th", [_vm._v("Student Year")]),
-          _vm._v(" "),
-          _c("th", [_vm._v("Student Section")]),
-          _vm._v(" "),
-          _c(
-            "th",
-            { attrs: { colspan: "3" } },
-            [_c("center", [_vm._v(" Options ")])],
-            1
-          )
-        ]),
-        _vm._v(" "),
-        _vm._l(_vm.studentList, function(singleStudent) {
-          return _c("tr", { key: singleStudent.student_lrn }, [
-            _c("td", [
-              _vm._v(
-                " " +
-                  _vm._s(
-                    singleStudent.studentLastName +
-                      ", " +
-                      singleStudent.studentFirstName +
-                      " " +
-                      singleStudent.studentMiddleName
-                  ) +
-                  " "
-              )
-            ]),
-            _vm._v(" "),
-            _c("td", [
-              _vm._v(
-                " " +
-                  _vm._s(_vm._f("filterYear")(singleStudent.schoolYear)) +
-                  " "
-              )
-            ]),
-            _vm._v(" "),
-            _c("td", [_vm._v(" " + _vm._s(singleStudent.section))]),
-            _vm._v(" "),
+          _c("td", [
             _c(
-              "td",
-              [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "btn btn-primary",
-                    attrs: {
-                      to: {
-                        name: "viewstudent",
-                        params: { student_lrn: singleStudent.student_lrn }
-                      }
-                    }
-                  },
-                  [_vm._v(" View Information ")]
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isFirst },
+                on: { click: _vm.paginationFirstPage }
+              },
+              [_vm._v("First")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("td", [
             _c(
-              "td",
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isPrev },
+                on: { click: _vm.paginationPreviousPage }
+              },
+              [_vm._v("Prev")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("td", [
+            _c(
+              "h5",
               [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "btn btn-secondary",
-                    attrs: {
-                      to: {
-                        name: "viewgrades",
-                        params: { student_lrn: singleStudent.student_lrn }
-                      }
-                    }
-                  },
-                  [_vm._v(" View Grades ")]
-                )
+                _c("center", [
+                  _vm._v(
+                    " Page " +
+                      _vm._s(_vm.pagination.currPage) +
+                      " of " +
+                      _vm._s(_vm.pagination.lastPage)
+                  )
+                ])
               ],
               1
             )
+          ]),
+          _vm._v(" "),
+          _c("td", [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isNext },
+                on: { click: _vm.paginationNextPage }
+              },
+              [_vm._v("Next")]
+            )
+          ]),
+          _vm._v(" "),
+          _c("td", [
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-info",
+                attrs: { disabled: _vm.isLast },
+                on: { click: _vm.paginationLastPage }
+              },
+              [_vm._v("Last")]
+            )
           ])
-        })
-      ],
-      2
-    ),
+        ])
+      ])
+    ]),
+    _vm._v(" "),
+    _vm.studentList != ""
+      ? _c(
+          "table",
+          { staticClass: "table table-bordered" },
+          [
+            _c("tr", [
+              _c("th", [_vm._v("Student Name")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("Student Year")]),
+              _vm._v(" "),
+              _c("th", [_vm._v("Student Section")]),
+              _vm._v(" "),
+              _c(
+                "th",
+                { attrs: { colspan: "3" } },
+                [_c("center", [_vm._v(" Options ")])],
+                1
+              )
+            ]),
+            _vm._v(" "),
+            _vm._l(_vm.studentList, function(singleStudent) {
+              return _c("tr", { key: singleStudent.student_lrn }, [
+                _c("td", [
+                  _vm._v(
+                    " " +
+                      _vm._s(
+                        singleStudent.studentLastName +
+                          ", " +
+                          singleStudent.studentFirstName +
+                          " " +
+                          singleStudent.studentMiddleName
+                      ) +
+                      " "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [
+                  _vm._v(
+                    " " +
+                      _vm._s(_vm._f("schoolYear")(singleStudent.schoolYear)) +
+                      " "
+                  )
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(" " + _vm._s(singleStudent.section))]),
+                _vm._v(" "),
+                _c(
+                  "td",
+                  [
+                    _c(
+                      "router-link",
+                      {
+                        staticClass: "btn btn-primary",
+                        attrs: {
+                          to: {
+                            name: "viewstudent",
+                            params: { student_lrn: singleStudent.student_lrn }
+                          }
+                        }
+                      },
+                      [_vm._v(" View Information ")]
+                    )
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "td",
+                  [
+                    _c(
+                      "router-link",
+                      {
+                        staticClass: "btn btn-secondary",
+                        attrs: {
+                          to: {
+                            name: "viewgrades",
+                            params: { student_lrn: singleStudent.student_lrn }
+                          }
+                        }
+                      },
+                      [_vm._v(" View Grades ")]
+                    )
+                  ],
+                  1
+                )
+              ])
+            })
+          ],
+          2
+        )
+      : _c("h4", [_vm._v(" No Result Found")]),
     _vm._v(" "),
     _c(
       "div",
@@ -43026,7 +43134,7 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-2 col-lg-2" }, [
+    return _c("div", { staticClass: "col-md-3 col-lg-3" }, [
       _c(
         "button",
         {

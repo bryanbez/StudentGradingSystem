@@ -6,40 +6,31 @@
         <hr />
 
         <div class="row">
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-6 col-lg-6">
                 <div class="row">
-                    <div class="col-md-6">
-                        <select v-model="sltLrnYear" @change="sortByYear" class="form-control">
-                            <option value="" disabled selected>Select Year</option>
-                            <option v-for="fetchYear in studentYear" :key="fetchYear.Year"> {{ fetchYear.Year }}</option>
-                        </select>
-                    </div>
-                     <div class="col-md-6">
-                        <button class="btn btn-info" @click="defaultList">Clear Sort</button>
-                    </div>
+                   <table>
+                       <tr>
+                           <td>
+                            <select v-model="sltLrnYear" @change="sortByYearAndSection" class="form-control">
+                                <option value="" disabled selected>Select Year</option>
+                                <option v-for="fetchYear in studentYear" :key="fetchYear.Year"> {{ fetchYear.Year }}</option>
+                            </select>
+                           </td>
+                           <td>
+                            <select v-model="sltLrnSection" @change="sortByYearAndSection" class="form-control">
+                                <option value="" disabled selected>Select Section</option>
+                                <option v-for="fetchSection in studentSection" :key="fetchSection.section"> {{ fetchSection.section }}</option>
+                            </select>
+                           </td>
+                           <td>
+                             <button class="btn btn-info" @click="defaultList">Clear Sort</button>
+                           </td>
+                       </tr>
+                   </table>            
+              
                 </div>
             </div>
-            <div class="col-md-4 col-lg-4">
-                <div class="row">
-                    <div class="col-md-2 col-lg-2">
-                        <button class="btn btn-info" :disabled='isFirst' @click="paginationFirstPage">First</button>
-                    </div>
-                     <div class="col-md-2 col-lg-2">
-                        <button class="btn btn-info" :disabled='isPrev' @click="paginationPreviousPage">Prev</button>
-                    </div>
-                     <div class="col-md-4 col-lg-4">
-                        <h5><center> Page {{ pagination.currPage }} of {{ pagination.lastPage }}</center></h5>
-                    </div>
-                    <div class="col-md-2 col-lg-2">
-                        <button class="btn btn-info" :disabled='isNext' @click="paginationNextPage">Next</button>
-                    </div>
-                     <div class="col-md-2 col-lg-2">
-                        <button class="btn btn-info" :disabled='isLast' @click="paginationLastPage">Last</button>
-                    </div>
-
-                </div>
-            </div>
-             <div class="col-md-2 col-lg-2">
+             <div class="col-md-3 col-lg-3">
                     <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addStudentInfo"> Add Student </button>
              </div>
               <div class="col-md-3 col-lg-3">
@@ -47,7 +38,31 @@
               </div>
         </div>
 
-        <table class="table table-bordered">
+         
+        <div class="row float-right">
+            <table>
+                <tr>
+                    <td>
+                        <button class="btn btn-info" :disabled='isFirst' @click="paginationFirstPage">First</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-info" :disabled='isPrev' @click="paginationPreviousPage">Prev</button>
+                    </td>
+                    <td>    
+                        <h5><center> Page {{ pagination.currPage }} of {{ pagination.lastPage }}</center></h5>
+                    </td>
+                    <td>
+                        <button class="btn btn-info" :disabled='isNext' @click="paginationNextPage">Next</button>
+                    </td>
+                    <td>
+                        <button class="btn btn-info" :disabled='isLast' @click="paginationLastPage">Last</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+            
+
+        <table class="table table-bordered" v-if="studentList != ''">
             <tr>
                 <th>Student Name</th>
                 <th>Student Year</th>
@@ -56,7 +71,7 @@
             </tr>
             <tr v-for="singleStudent in studentList" :key="singleStudent.student_lrn">
                 <td> {{ singleStudent.studentLastName + ', ' + singleStudent.studentFirstName + ' ' + singleStudent.studentMiddleName  }} </td>
-                <td> {{ singleStudent.schoolYear | filterYear }} </td>
+                <td> {{ singleStudent.schoolYear | schoolYear }} </td>
                 <td> {{ singleStudent.section }}</td>
                 <td><router-link v-bind:to="{name: 'viewstudent', params:{student_lrn: singleStudent.student_lrn}}" class="btn btn-primary"> View Information </router-link></td>
                 <td><router-link v-bind:to="{name: 'viewgrades', params:{student_lrn: singleStudent.student_lrn}}" class="btn btn-secondary"> View Grades </router-link></td>
@@ -64,6 +79,7 @@
 
         </table>
 
+        <h4 v-else> No Result Found</h4>
 
             <div class="modal fade" id="addStudentInfo" tab-index="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog">
@@ -98,7 +114,9 @@ export default {
         return {
             studentList: [],
             studentYear: [],
+            studentSection: [],
             sltLrnYear: '',
+            sltLrnSection: '',
             pagination: {
                 prevURL: '',
                 nextURL: '',
@@ -131,21 +149,64 @@ export default {
                  console.log(response)
                  this.studentYear = response.data;
         });  
+        axios.get('http://localhost:8000/api/fetchStudentSection')
+             .then(response => {
+                 console.log(response)
+                 this.studentSection = response.data;
+        });  
     },
     methods: {
-        sortByYear() {
-            axios.get(`http://localhost:8000/api/fetchStudentsBaseInYearLRN/${this.sltLrnYear}`)
-                .then(response => {
-                    console.log(response);
-                    this.studentList = response.data;
-                 // this.paginationDatas(response);
-            });
+        sortByYearAndSection() {
+
+            if(this.sltLrnSection == '') {
+                axios.get(`http://localhost:8000/api/fetchStudentsBaseInYearLRN/${this.sltLrnYear}/NULL`)
+                    .then(response => {
+                            console.log(response);
+                            //this.studentList = response.data;
+                            this.paginationDatas(response);
+                            this.isPrev = true;
+                            this.isFirst = true;
+                            this.isLast = false;
+                            this.isNext = false;
+                            if(response.data.next_page_url === null) {
+                                this.isLast = true;
+                                this.isNext = true;
+                    }
+                });
+            }
+            else {
+                axios.get(`http://localhost:8000/api/fetchStudentsBaseInYearLRN/${this.sltLrnYear}/${this.sltLrnSection}`)
+                    .then(response => {
+                        console.log(response);
+                        //this.studentList = response.data;
+                        this.paginationDatas(response);
+                        this.isPrev = true;
+                        this.isFirst = true;
+                        this.isLast = false;
+                        this.isNext = false;
+                        if(response.data.next_page_url === null) {
+                            this.isLast = true;
+                            this.isNext = true;
+                    }
+                });
+            }
+          
         },
         defaultList() {
             axios.get('http://localhost:8000/api/students')
                 .then(response => {
                     console.log(response)
-                   this.paginationDatas(response);
+                    this.paginationDatas(response);
+                    this.isPrev = true;
+                    this.isFirst = true;
+                    this.isLast = false;
+                    this.isNext = false;
+                    if(response.data.next_page_url === null) {
+                        this.isLast = true;
+                        this.isNext = true;
+                    }
+                    this.sltLrnYear = '';
+                    this.sltLrnSection = '';
             });
         },
         paginationNextPage() {
@@ -234,20 +295,25 @@ export default {
       
     },
     filters: {
-        filterYear(value) {
-            if(value == 1) {
+        schoolYear(value) {
+            if (value == 1) {
                 return '1st';
-            }else if (value == 2) {
+            }
+            else if(value == 2) {
                 return '2nd';
-            }else if (value == 3) {
+            }
+            else if(value == 3) {
                 return '3rd';
-            }else if (value == 4) {
+            }
+            else if (value == 4) {
                 return '4th';
-            } else {
-                //Wala
+            }
+            else {
+                // Null
             }
         }
     }
+
 }
 </script>
 

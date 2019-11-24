@@ -2,7 +2,7 @@
     <div class="container">
            
             <form action="" @submit.prevent="passAllInputs()">
-                <div class="alert alert-success" v-if="statusOfUpdate === 200">
+                <div class="alert alert-info" v-if="statusOfUpdate === 200">
                     {{ insertMsg }}
                 </div>
                 <div class="col-md-12 col-lg-12 mb-2">
@@ -90,6 +90,7 @@ export default {
         }
     },
     methods: {
+     
         passAllInputs() {
             axios.post('http://localhost:8000/api/students', this.studentInfo).then(
                 response => {

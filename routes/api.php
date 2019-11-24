@@ -35,7 +35,8 @@ Route::get('fetchquiz/{student_lrn}', 'CriteasController\CtrlStudentQuiz@fetchQu
 Route::get('fetchrecitation/{student_lrn}', 'CriteasController\CtrlStudentRecitation@fetchRecitationRecordByStudentId');
 Route::get('fetchStudentRecords/{student_lrn}', 'CriteasController\CtrlGradeCritea@fetchAllStudentRecords');
 Route::get('fetchStudentYearInLRN', 'StudentInfoController\CtrlStudentInformation@yearOptions');
-Route::get('fetchStudentsBaseInYearLRN/{year}', 'StudentInfoController\CtrlStudentInformation@fetchStudentsByYearInLRN');
+Route::get('fetchStudentSection', 'StudentInfoController\CtrlStudentInformation@sectionOptions');
+Route::get('fetchStudentsBaseInYearLRN/{year}/{section}', 'StudentInfoController\CtrlStudentInformation@fetchStudentsByYearInLRN');
 Route::get('students/search/{searchText}', 'StudentInfoController\CtrlStudentInformation@searchStudent');
 
 Route::get('student/{student_lrn}', 'StudentInfoController\CtrlStudentInformation@show');

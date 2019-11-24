@@ -17,20 +17,30 @@ class StudentInfomationModel extends Model
     }
 
     public function getStudentYear() {
-        return DB::select("SELECT LEFT(student_lrn, 4) AS Year FROM tblStudentInfo GROUP BY (SELECT LEFT(student_lrn, 4))"); 
+        return DB::select("SELECT schoolYear AS Year FROM tblStudentInfo GROUP BY schoolYear"); 
+    }
+    public function getStudentSection() {
+        return DB::select("SELECT section FROM tblStudentInfo GROUP BY section"); 
     }
 
-    public function getAllStudentsByYear($year) {
-          $query = DB::select("SELECT * FROM tblStudentInfo HAVING (SELECT LEFT(student_lrn, 4) as yearEnrolled) = $year");
-          return $query;
-        // return DB::table('tblStudentInfo')
-        //             ->select('*')
-        //             ->groupBy('student_lrn')
-        //             ->having(DB::table('tblStudentInfo')->selectRaw('LEFT(student_lrn, 4) AS student_lrn'), '=', $year)
-        //             ->get();
-        // return DB::table('tblStudentInfo')->selectRaw('LEFT(student_lrn, 4) AS yearEnrolled')->get();
-        // select * from `tblStudentInfo` group by `student_lrn` having (SELECT LEFT(student_lrn, 4) as student_lrn) = 2014;
-        //return DB::table('tblStudentInfo')->selectRaw('LEFT(student_lrn, 4)')->get();
+    public function getAllStudentsByYearAndSection($year, $section) {
+
+        if ($section == 'NULL') {
+            return DB::table('tblStudentInfo')
+                    ->select(DB::raw('student_lrn, studentLastName, studentFirstName, studentMiddleName, studentAge, studentGender, schoolYear, section, bldg_rmNo'))
+                    ->groupBy('student_lrn')
+                    ->where('schoolYear', '=', $year)
+                    ->paginate(10);
+        }
+        else {
+            return DB::table('tblStudentInfo')
+                    ->select(DB::raw('student_lrn, studentLastName, studentFirstName, studentMiddleName, studentAge, studentGender, schoolYear, section, bldg_rmNo'))
+                    ->groupBy('student_lrn')
+                    ->where('schoolYear', '=', $year)
+                    ->where('section', '=', $section)
+                    ->paginate(10);
+        }
+         
     }
     public function searchStudentQuery($keyword) {
     
@@ -38,5 +48,28 @@ class StudentInfomationModel extends Model
             ->orWhere('studentFirstName', 'LIKE', $keyword.'%')
             ->orWhere('studentMiddleName', 'LIKE', $keyword.'%')->paginate(10);
      
+    }
+
+    public function checkDuplicateStudentLRN($studentLRN) {
+
+        return StudentInfomationModel::select('student_lrn')->where('student_lrn', $studentLRN)->get();
+      
+    }
+
+    public function store($request) {
+
+            $addStudent = new StudentInfomationModel;
+            $addStudent->student_lrn = $request->txtLRN;
+            $addStudent->studentFirstName = $request->txtFirstName;
+            $addStudent->studentLastName = $request->txtLastName;
+            $addStudent->studentMiddleName = $request->txtMiddleName;
+            $addStudent->studentAge = $request->txtAge;
+            $addStudent->studentGender = $request->sltGender;
+            $addStudent->schoolYear = $request->sltYear;
+            $addStudent->section = $request->txtSection;
+            $addStudent->bldg_rmNo = $request->txtBldgRmNo;
+            $addStudent->save();
+    
+            return response()->json('Student Information Successfully Inserted');
     }
 }
