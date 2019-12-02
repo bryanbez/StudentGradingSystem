@@ -19,7 +19,7 @@
                   <router-link to="/managegrades" class="nav-link">Manage Student Grades</router-link>
                 </li>
                  <li class="nav-item">
-                  <router-link to="/" class="nav-link">Print Grades</router-link>
+                  <router-link to="/printgrades" class="nav-link">Print Grades</router-link>
                 </li>
               </ul>
             </div>

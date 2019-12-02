@@ -19,7 +19,6 @@ class CtrlGradeCritea extends Controller
     }
     public function fetchAllStudentRecords($student_lrn) {
 
-     
         $critea = new GradeCriteaModel();
 
         $fetchAllGradeCritea = DB::select('select id, critea, percentage from tblGradeCritea');
@@ -29,9 +28,7 @@ class CtrlGradeCritea extends Controller
                 $assignmentRecords = $critea->calculateAssignmentRecords($student_lrn);
             }
             else if($singleCritea->critea == 'Exam') {
-
                 $examRecords = $critea->calculateExamRecords($student_lrn);
-                
             }
             else if($singleCritea->critea == 'Project') {
                 $projectRecords = $critea->calculateProjectRecords($student_lrn);
@@ -45,10 +42,10 @@ class CtrlGradeCritea extends Controller
         }
 
         return response()->json([
+            'quizRecords' => $quizRecords,
             'assignmentRecords' => $assignmentRecords,
             'examRecords' => $examRecords,
-            'projectRecords' => $projectRecords,
-            'quizRecords' => $quizRecords,
+            'projectRecords' => $projectRecords, 
             'recitationRecords' => $recitationRecords
         ]); 
     }

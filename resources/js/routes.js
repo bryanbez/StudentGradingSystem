@@ -1,4 +1,5 @@
-import MainPage from './components/App';
+import App from './components/App';
+import MainPage from './components/MainPage';
 import ManageGrades from './components/Pages/ManageGrades'
 import AddStudent from './components/Layouts/ManageStudentGrades/AddStudent'
 import AllCritea from './components/Layouts/ManageStudentGrades/AllCritea.vue'
@@ -8,11 +9,13 @@ import Projects from './components/Layouts/ManageStudentGrades/Projects.vue'
 import Quiz from './components/Layouts/ManageStudentGrades/Quiz.vue'
 import Recitation from './components/Layouts/ManageStudentGrades/Recitation.vue'
 import ViewStudent from './components/Layouts/ManageStudentInfo/ViewStudentInfo.vue'
+import PrintGrades from './components/Pages/PrintGrades.vue'
 
 export default [
-    { path: '/..', component: MainPage },
+    { path: '/', component: MainPage },
     { path: '/managegrades', name: 'managegrades', component: ManageGrades },
     { path: '/addstudent', component: AddStudent },
+    { path: '/printgrades', component: PrintGrades},
     { path: '/viewgrades/:student_lrn', name: 'viewgrades', component: AllCritea },
     { path: '/viewgrades/:student_lrn/exam/', name: 'exam', component: Exam },
     { path: '/viewgrades/:student_lrn/assignment/', name: 'assignment', component: Assigment },

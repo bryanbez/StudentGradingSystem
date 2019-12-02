@@ -15,6 +15,7 @@ class GradeCriteaModel extends Model
 
         $examResult = DB::select(
         "SELECT student_lrn, COUNT(student_lrn) AS exam_count,
+        (SELECT CONCAT(studentLastName, ' ', studentFirstName) FROM tblstudentinfo WHERE student_lrn=$student_lrn) AS studentFullName,
         (SELECT critea FROM tblGradeCritea WHERE critea='Exam') AS critea_name,
         (SELECT percentage FROM tblGradeCritea WHERE critea='Exam') AS critea_percentage,
         (SELECT COUNT(student_lrn) AS exam_count FROM tblExam GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_exam_number,
@@ -43,6 +44,7 @@ class GradeCriteaModel extends Model
     public function calculateAssignmentRecords($student_lrn) {
 
         $assignmentResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS assignment_count, 
+        (SELECT CONCAT(studentFirstName, ' ', studentLastName) FROM tblstudentinfo WHERE student_lrn=$student_lrn) AS studentFullName,
         (SELECT critea FROM tblGradeCritea WHERE critea='Assignment') AS critea_name,
         (SELECT percentage FROM tblGradeCritea WHERE critea='Assignment') AS critea_percentage,
         (SELECT COUNT(student_lrn) AS assignment_count FROM tblAssignment GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_assignment_number,
@@ -74,7 +76,8 @@ class GradeCriteaModel extends Model
     }
     public function calculateProjectRecords($student_lrn) {
 
-        $projectResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS project_count, 
+        $projectResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS project_count,
+        (SELECT CONCAT(studentFirstName, ' ', studentLastName) FROM tblstudentinfo WHERE student_lrn=$student_lrn) AS studentFullName,
         (SELECT critea FROM tblGradeCritea WHERE critea='Project') AS critea_name,
         (SELECT percentage FROM tblGradeCritea WHERE critea='Project') AS critea_percentage,
         (SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_project_number,
@@ -105,7 +108,8 @@ class GradeCriteaModel extends Model
     }
     public function calculateQuizRecords($student_lrn) {
 
-        $quizResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS quiz_count, 
+        $quizResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS quiz_count,
+        (SELECT CONCAT(studentFirstName, ' ', studentLastName) FROM tblstudentinfo WHERE student_lrn=$student_lrn) AS studentFullName, 
         (SELECT critea FROM tblGradeCritea WHERE critea='Quiz') AS critea_name,
         (SELECT percentage FROM tblGradeCritea WHERE critea='Quiz') AS critea_percentage,
         (SELECT COUNT(student_lrn) AS quiz_count FROM tblQuiz GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_quiz_number,
@@ -130,6 +134,7 @@ class GradeCriteaModel extends Model
     }
     public function calculateRecitationRecords($student_lrn) {
         $recitationResult = DB::select("SELECT student_lrn, SUM(points) AS recitation_count,
+        (SELECT CONCAT(studentFirstName, ' ', studentLastName) FROM tblstudentinfo WHERE student_lrn=$student_lrn) AS studentFullName,
         (SELECT critea FROM tblGradeCritea WHERE critea='Recitation') AS critea_name,
         (SELECT percentage FROM tblGradeCritea WHERE critea='Recitation') AS critea_percentage,
         CASE WHEN SUM(points) >= 10 THEN '100' 
@@ -162,6 +167,7 @@ class GradeCriteaModel extends Model
 
       return [[
         'student_lrn' => $student_lrn,
+        'studentFullName' => DB::select("SELECT CONCAT(studentFirstName, ' ', studentLastName) AS studentFullName FROM tblstudentinfo WHERE student_lrn='$student_lrn'")[0]->studentFullName,
         $critea_count => 0,
         'critea_name' => DB::select("SELECT critea FROM tblGradeCritea WHERE critea='$critea_name'")[0]->critea,
         'critea_percentage' => DB::select("SELECT percentage FROM tblGradeCritea WHERE critea='$critea_name'")[0]->percentage,

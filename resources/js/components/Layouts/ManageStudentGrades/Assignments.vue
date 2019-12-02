@@ -44,7 +44,7 @@
                             <td> <button class="btn btn-danger" @click="removeAssignmentRecord(singleAssignmentRecord.assignment_id)">Remove</button> </td>
                         </tr>
                         <tr>
-                            <td>Final Grade in Quiz</td>
+                            <td>Final Grade in Assignment</td>
                             <td> {{ assignmentResult.equivalent }} ({{ assignmentResult.assignment_count }} of {{ assignmentResult.max_assignment_number}} assignment passed) </td>
                         </tr>
                     </table>

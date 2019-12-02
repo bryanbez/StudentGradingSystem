@@ -22,5 +22,10 @@
     "sass-loader": "^7.1.0",
     "vue": "^2.5.17",
     "vue-template-compiler": "^2.6.10"
+  },
+  "dependencies": {
+    "vue-graph": "^0.8.7",
+    "vue-html-to-paper": "^1.1.1",
+    "vue-router": "^3.1.3"
   }
 }
