@@ -74,7 +74,7 @@
                 <td> {{ singleStudent.schoolYear | schoolYear }} </td>
                 <td> {{ singleStudent.section }}</td>
                 <td><router-link v-bind:to="{name: 'viewstudent', params:{student_lrn: singleStudent.student_lrn}}" class="btn btn-primary"> View Information </router-link></td>
-                <td><router-link v-bind:to="{name: 'viewgrades', params:{student_lrn: singleStudent.student_lrn}}" class="btn btn-secondary"> View Grades </router-link></td>
+                <td><router-link v-bind:to="{name: 'managestudentsubjectgrades', params:{student_lrn: singleStudent.student_lrn, student_year: singleStudent.schoolYear}}" class="btn btn-secondary"> View Grades </router-link></td>
             </tr>
 
         </table>
@@ -88,7 +88,7 @@
                            <h4> Add Student </h4>
                         </div>
                         <div class="modal-body">
-                            <AddStudent></AddStudent>
+                            <AddStudent @refreshList="refreshStudentList"></AddStudent>
                         </div>
                         <div class="modal-footer">
                               <button class="btn btn-danger" data-dismiss="modal"> Close </button>
@@ -291,6 +291,11 @@ export default {
             this.pagination.lastURL = response.data.last_page_url;
             this.pagination.nextURL = response.data.next_page_url;
             this.pagination.prevURL = response.data.prev_page_url;
+        },
+        refreshStudentList(value) {
+            if (value == 200) {
+                this.defaultList();
+            }
         }
       
     },

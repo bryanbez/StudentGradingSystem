@@ -16,6 +16,7 @@ class AssignmentMigrate extends Migration
         Schema::create('tblAssignment', function (Blueprint $table) {
             $table->bigIncrements('assignment_id');
             $table->integer('student_lrn');
+            $table->string('subj_code');
             $table->date('date_of_assignment');
             $table->integer('grade');
             $table->timestamps();

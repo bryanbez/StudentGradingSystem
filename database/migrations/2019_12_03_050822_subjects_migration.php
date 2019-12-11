@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ProjectMigrate extends Migration
+class SubjectsMigration extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class ProjectMigrate extends Migration
      */
     public function up()
     {
-        Schema::create('tblProjects', function (Blueprint $table) {
-            $table->bigIncrements('project_id');
-            $table->integer('student_lrn');
+        Schema::create('tblSubjects', function (Blueprint $table) {
             $table->string('subj_code');
-            $table->date('date_of_project');
-            $table->integer('grade');
+            $table->string('subj_for_yr');
+            $table->string('subj_name');
+            $table->text('subj_description');
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ class ProjectMigrate extends Migration
      */
     public function down()
     {
-        Schema::drop('tblProjects');
+       Schema::drop('tblSubjects');
     }
 }

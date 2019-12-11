@@ -16,6 +16,7 @@ class RecitationMigrate extends Migration
         Schema::create('tblRecitation', function (Blueprint $table) {
             $table->bigIncrements('recitation_id');
             $table->integer('student_lrn');
+            $table->string('subj_code');
             $table->date('date_of_recitation');
             $table->integer('points');
             $table->timestamps();

@@ -10,12 +10,18 @@ import Quiz from './components/Layouts/ManageStudentGrades/Quiz.vue'
 import Recitation from './components/Layouts/ManageStudentGrades/Recitation.vue'
 import ViewStudent from './components/Layouts/ManageStudentInfo/ViewStudentInfo.vue'
 import PrintGrades from './components/Pages/PrintGrades.vue'
+import ManageSubjects from './components/Layouts/ManageSubjects/ManageSubjects'
+import Settings from './components/Pages/Settings'
+import ManageStudentSubjectGrades from './components/Layouts/ManageSubjects/ManageStudentSubjectGrades'
 
 export default [
     { path: '/', component: MainPage },
     { path: '/managegrades', name: 'managegrades', component: ManageGrades },
+    { path: '/managesubjects', name: 'managesubjects', component: ManageSubjects },
     { path: '/addstudent', component: AddStudent },
     { path: '/printgrades', component: PrintGrades},
+    { path: '/settings', component: Settings },
+    { path: '/managestudentsubjectgrades/:student_lrn/:student_year', name: 'managestudentsubjectgrades', component: ManageStudentSubjectGrades },
     { path: '/viewgrades/:student_lrn', name: 'viewgrades', component: AllCritea },
     { path: '/viewgrades/:student_lrn/exam/', name: 'exam', component: Exam },
     { path: '/viewgrades/:student_lrn/assignment/', name: 'assignment', component: Assigment },

@@ -18,8 +18,14 @@
                 <li class="nav-item">
                   <router-link to="/managegrades" class="nav-link">Manage Student Grades</router-link>
                 </li>
+                <li class="nav-item">
+                  <router-link to="/managesubjects" class="nav-link">Manage Subjects</router-link>
+                </li>
                  <li class="nav-item">
                   <router-link to="/printgrades" class="nav-link">Print Grades</router-link>
+                </li>
+                <li class="nav-item">
+                  <router-link to="/settings" class="nav-link">Settings</router-link>
                 </li>
               </ul>
             </div>

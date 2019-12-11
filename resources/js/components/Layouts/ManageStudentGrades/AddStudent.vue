@@ -97,12 +97,16 @@ export default {
                  console.log(response)
                   this.statusOfUpdate = response.status;
                   this.insertMsg = response.data;
+                  this.refreshList(response.status);
             }).catch(error => {
                  this.statusOfUpdate = error.response.status;
                  this.insertMsg = error.response.data.errors;
               
             });
         },
+        refreshList(status) {
+            this.$emit('refreshList', status);
+        }
       
     },
     filters: {

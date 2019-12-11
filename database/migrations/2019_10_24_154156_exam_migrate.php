@@ -16,6 +16,7 @@ class ExamMigrate extends Migration
         Schema::create('tblExam', function (Blueprint $table) {
             $table->bigIncrements('exam_id');
             $table->integer('student_lrn');
+            $table->string('subj_code');
             $table->date('date_of_exam');
             $table->integer('no_of_items');
             $table->integer('score');

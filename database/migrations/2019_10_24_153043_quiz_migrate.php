@@ -16,6 +16,7 @@ class QuizMigrate extends Migration
         Schema::create('tblQuiz', function (Blueprint $table) {
             $table->bigIncrements('quiz_id');
             $table->integer('student_lrn');
+            $table->string('subj_code');
             $table->date('date_of_quiz');
             $table->integer('no_of_items');
             $table->integer('score');

@@ -25,7 +25,9 @@ Route::resources([
     'assignments' => 'CriteasController\CtrlStudentAssignment',
     'projects' => 'CriteasController\CtrlStudentProject',
     'quiz' => 'CriteasController\CtrlStudentQuiz',
-    'recitation' => 'CriteasController\CtrlStudentRecitation'
+    'recitation' => 'CriteasController\CtrlStudentRecitation',
+    'subject' => 'SubjectsController\SubjectsController',
+    'managecritea' => 'CriteasController\ManageCriteaController'
 ]);
 
 Route::get('summaryofstudents', 'StudentInfoController\SummaryOfStudentsController@getTheSummary');
@@ -40,5 +42,6 @@ Route::get('fetchStudentSection', 'StudentInfoController\CtrlStudentInformation@
 Route::get('fetchStudentsBaseInYearLRN/{year}/{section}', 'StudentInfoController\CtrlStudentInformation@fetchStudentsByYearInLRN');
 Route::get('students/search/{searchText}', 'StudentInfoController\CtrlStudentInformation@searchStudent');
 Route::get('printGrades/{year}/{section}', 'StudentInfoController\PrintGradesOfStudentController@index');
+Route::get('showSubjectInYear/{year}', 'SubjectsController\SubjectsController@showSubjectsPerYear');
 
 Route::get('student/{student_lrn}', 'StudentInfoController\CtrlStudentInformation@show');

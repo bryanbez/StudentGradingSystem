@@ -69,7 +69,7 @@ class StudentInfomationModel extends Model
             $addStudent->section = $request->txtSection;
             $addStudent->bldg_rmNo = $request->txtBldgRmNo;
             $addStudent->save();
-    
+            
             return response()->json('Student Information Successfully Inserted');
     }
 }
