@@ -8,15 +8,13 @@
             <thead>
                 <tr>
                     <th>Subject</th>
-                    <th>Grade</th>
                     <th>Option</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="singleSubject in fetchedSubjectInfo" :key="singleSubject.id">
+                <tr v-for="singleSubject in fetchedSubjectInfo" :key="singleSubject.subj_code">
                     <td scope="row"> {{ singleSubject.subj_name }} </td>
-                    <td>00</td>
-                    <td>View Grades</td>
+                    <td><router-link :to="{name: 'managestudentgrades', params:{student_lrn: student_info.student_lrn, student_year: student_info.student_yr_no_filter, subject_code: singleSubject.subj_code}}" class="btn btn-primary"> View Grades </router-link></td>
                 </tr>
             </tbody>
         </table>
@@ -32,21 +30,23 @@ export default {
             student_info: {
                  student_lrn: '',
                  student_yr: '',
-                 student_name: ''
-            }
+                 student_name: '',
+                 student_yr_no_filter: ''
+            },
+            finalGrade: '',
            
         }
     },
     created() {
         this.student_info.student_lrn = this.$route.params.student_lrn;
         this.student_info.student_yr = this.yearFilter(this.$route.params.student_year);
+        this.student_info.student_yr_no_filter = this.$route.params.student_year;
         this.fetchSubjectsInSpecificYearAndStudentName(this.student_info.student_yr, this.student_info.student_lrn)
     },
     methods: {
         fetchSubjectsInSpecificYearAndStudentName(studentYear, student_lrn) {
             axios.get('http://localhost:8000/api/showSubjectInYear/'+studentYear).then(
                 response => {
-                    console.log(response.data)
                     this.fetchedSubjectInfo = response.data;
             });
             axios.get('http://localhost:8000/api/student/'+student_lrn)

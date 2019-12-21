@@ -14,6 +14,11 @@
                 <input class="form-control" type="text" v-model="criteasToUpdate.textcriteaPercentage" />
                 <span v-if="updateMsg.textcriteaPercentage" class="error"> {{ updateMsg.textcriteaPercentage | trimCharacters }}</span> 
             </div>
+            <div class="col-sm-12 col-md-12 col-lg-12 mb-2">
+                <label for="">Default Critea Grade</label>
+                <input class="form-control" type="text" v-model="criteasToUpdate.defaultCriteaGrade" />
+                <span v-if="updateMsg.defaultCriteaGrade" class="error"> {{ updateMsg.defaultCriteaGrade | trimCharacters }}</span> 
+            </div>
 
             <div class="col-md-12 col-lg-12 mt-5">
                 <button type="submit" class="btn btn-primary" @click="clearNotification">Update Critea</button>
@@ -31,7 +36,8 @@ export default {
         return {
             criteasToUpdate: {
                 textcriteaName: '',
-                textcriteaPercentage: ''
+                textcriteaPercentage: '',
+                defaultCriteaGrade: ''
             },
             statusOfUpdate: '',
             updateMsg: ''
@@ -46,7 +52,8 @@ export default {
             axios.get(`http://localhost:8000/api/managecritea/${this.criteaID}`).then(
                 response => {
                 this.criteasToUpdate.textcriteaName = response.data[0].critea;
-                this.criteasToUpdate.textcriteaPercentage = response.data[0].percentage;    
+                this.criteasToUpdate.textcriteaPercentage = response.data[0].percentage;
+                this.criteasToUpdate.defaultCriteaGrade = response.data[0].defaultGrade;    
             });  
            
         },
@@ -72,6 +79,7 @@ export default {
         clearTextboxes() {
             this.criteasToUpdate.textcriteaName = '';
             this.criteasToUpdate.textcriteaPercentage = '';
+            this.criteasToUpdate.defaultCriteaGrade = '';
         },
         refreshList(status) {
             this.$emit('refreshList', status);

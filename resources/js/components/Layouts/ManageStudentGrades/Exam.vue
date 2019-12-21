@@ -7,9 +7,9 @@
                         <p> {{ message }}  <a style="float: right; cursor: pointer" @click="dismissMessage()">X</a></p>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
                     </div>           
                <br />
-                <h3>Exams of {{ studentFullName }}</h3>
+                <h3>Exams of {{ studentFullName }} in the subject of {{ subj_name }}</h3>
                  <hr />
-                   <h5> Total Exams: {{ overAllExamResult.exam_count }} </h5>
+                    <h5 v-if="allExamRecords != null"> Total Exams: {{ overAllExamResult.exam_count }} </h5>
                   <hr />
                 <h4>Add/ Update Exam Records</h4>
                   
@@ -36,7 +36,7 @@
               
                     <br />
 
-                       <table class="table table-bordered" v-if="overAllExamResult.exam_count != 0">
+                       <table class="table table-bordered" v-if="allExamRecords != null">
                         <tr>
                             <th> Date Given</th>
                             <th> No. of Items </th>
@@ -61,7 +61,7 @@
 
                     <br />
 
-                    <router-link v-bind:to="{name: 'viewgrades', params:{student_lrn: this.input.student_lrn}}" class="btn btn-danger">Back</router-link>
+                    <router-link :to="{name: 'managestudentgrades', params:{student_lrn: input.student_lrn, student_year: schoolYr, subject_code: input.subj_code}}" class="btn btn-danger"> Back </router-link>
                   
             </div>
         </div>
@@ -78,28 +78,37 @@ export default {
             input: {
                 student_lrn: '',
                 dateOfExam: '',
+                subj_code: '',
                 noOfItems: '',
                 score: '',
             },
             allExamRecords: [],
             overAllExamResult: [],
             studentFullName: '',
-            message: ''
+            message: '',
+            subj_name: '',
+            schoolYr: '',
          
         }
     },
     created() {
             this.input.student_lrn = this.$route.params.student_lrn;
-            axios.get(`http://localhost:8000/api/fetchexams/${this.input.student_lrn}`).then(
-                response =>  {
-                    this.allExamRecords = response.data.exams;
-                    this.overAllExamResult = response.data.overallExamData[0];
-                    console.log(this.allExamRecords)
-                });
+            this.input.subj_code = this.$route.params.subject_code;
+            this.schoolYr = this.$route.params.student_year;
+            console.log(this.input.student_lrn + '/ Exam /' + this.input.subj_code);
+
             axios.get('http://localhost:8000/api/student/'+this.input.student_lrn)
                 .then(response => {
-                this.studentFullName = response.data[0].FullName;
+                  this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
             });
+
+            axios.get(`http://localhost:8000/api/subject/${this.input.subj_code}`).then(
+                response => {
+                    console.log(response)
+                    this.subj_name = response.data[0].subj_name;
+            });
+
+            this.refreshList();
     },
     methods: {
         dismissMessage() {
@@ -145,7 +154,7 @@ export default {
             );
         },
         removeExamRecord(examID) {
-            if(confirm('Are you sure to delete this record? ')){
+            if(confirm('Are you sure to delete this record? ')){ 
                  axios.delete(`http://localhost:8000/api/exams/${examID}`).then(
                     response => {
                     this.message = response.data;
@@ -155,13 +164,17 @@ export default {
              
         },
         refreshList() {
-              axios.get(`http://localhost:8000/api/fetchexams/${this.input.student_lrn}`).then(
+            axios.get(`http://localhost:8000/api/fetchexams/${this.input.student_lrn}/${this.input.subj_code}`).then(
                 response => {
-                    this.allExamRecords = response.data.exams;
-                    this.overAllExamResult = response.data.overallExamData[0];
-                    console.log(this.overAllExamResult)
-                }
-            );
+                    console.log(response.data)
+                     if (response.data.exams === 'empty') {
+                       this.allExamRecords = null
+                     }
+                     else {
+                        this.allExamRecords = response.data.exams;
+                        this.overAllExamResult = response.data.overallExamData[0];
+                    }
+            });
         }
     
     },

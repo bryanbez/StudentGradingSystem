@@ -49,6 +49,7 @@ class CtrlStudentQuiz extends Controller
         try {
             $saveQuiz = new QuizModel;
             $saveQuiz->student_lrn = $request->student_lrn;
+            $saveQuiz->subj_code = $request->subj_code;
             $saveQuiz->date_of_quiz = $request->dateOfQuiz;
             $saveQuiz->no_of_items = $request->noOfItems;
             $saveQuiz->score = $request->score;

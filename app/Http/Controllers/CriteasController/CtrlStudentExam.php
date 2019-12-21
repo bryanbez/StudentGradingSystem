@@ -17,9 +17,9 @@ class CtrlStudentExam extends Controller
         return StudentscoreAndCritea::collection($fetchAllExamRecord);
     }
 
-    public function fetchExamRecordByStudentId($student_lrn)
+    public function fetchExamRecordByStudentId($student_lrn, $subject_code)
     {
-        $fetchAllExamRecord = ExamModel::where('student_lrn', $student_lrn)->get();
+        $fetchAllExamRecord = DB::select("SELECT * FROM tblExam WHERE student_lrn=$student_lrn AND subj_code='$subject_code'");
 
         $examResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS exam_count, 
         (SELECT COUNT(student_lrn) AS exam_count FROM tblExam GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_exam_number,
@@ -29,12 +29,13 @@ class CtrlStudentExam extends Controller
         / (SELECT COUNT(student_lrn) FROM tblExam GROUP BY student_lrn LIMIT 1) /* LOWER */
          ELSE ((SELECT SUM(score) FROM tblExam WHERE student_lrn=$student_lrn) * 100) / (SELECT SUM(no_of_items) FROM tblExam WHERE student_lrn=$student_lrn)
          END) AS equivalent   
-        FROM tblExam WHERE student_lrn=$student_lrn GROUP BY student_lrn");
+        FROM tblExam WHERE student_lrn=$student_lrn AND subj_code='$subject_code' GROUP BY student_lrn");
 
-        if($fetchAllExamRecord->isEmpty()) {
+        if($fetchAllExamRecord == []) {
             $noResult = new GradeCriteaModel();
             return [
-                'overallExamData' => $noResult->returnNoResult($student_lrn, 'exam_count', 'Exam')
+                'overallExamData' => $noResult->returnNoResult($student_lrn, 'exam_count', 'Exam', $subject_code),
+                'exams' => 'empty'
             ];
         }
         else {
@@ -43,6 +44,7 @@ class CtrlStudentExam extends Controller
                 'exams' => $fetchAllExamRecord
             ]);
         }
+       //return response()->json($fetchAllExamRecord);
     }
 
 
@@ -57,6 +59,7 @@ class CtrlStudentExam extends Controller
             $saveExam = new ExamModel;
             $saveExam->student_lrn = $request->student_lrn;
             $saveExam->date_of_exam = $request->dateOfExam;
+            $saveExam->subj_code = $request->subj_code;
             $saveExam->no_of_items = $request->noOfItems;
             $saveExam->score = $request->score;
             $saveExam->equivalent = ($request->score * 100) / $request->noOfItems;

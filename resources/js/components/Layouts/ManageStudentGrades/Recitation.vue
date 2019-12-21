@@ -10,7 +10,7 @@
                <br />
                 <h3>Recitations of {{ studentFullName }}</h3>
                 <hr />
-                <h5> Total Recitation: {{ overAllRecitationRecord.recitation_count }} </h5>
+                <h5 v-if="recitationRecords != null"> Total Recitation: {{ overAllRecitationRecord.recitation_count }} </h5>
                 <hr />
                 <h4>Add/ Update Recitation Records</h4>
 
@@ -32,7 +32,7 @@
                     <br />
                  
                  
-                    <table class="table table-bordered" v-if="overAllRecitationRecord.recitation_count != 0">
+                    <table class="table table-bordered" v-if="recitationRecords != null">
                         <tr>
                             <th> Date Given</th>
                             <th> Points </th>
@@ -54,7 +54,7 @@
 
                     <br />
 
-                    <router-link v-bind:to="{name: 'viewgrades', params:{student_lrn: this.input.student_lrn}}" class="btn btn-danger">Back</router-link>
+                    <router-link v-bind:to="{name: 'managestudentgrades', params:{student_lrn: input.student_lrn, student_year: schoolYr, subject_code: input.subj_code}}" class="btn btn-danger">Back</router-link>
             </div>
         </div>
     </div>
@@ -67,27 +67,35 @@ export default {
             input: {
                 student_lrn: '',
                 dateOfRecitation: '',
+                subj_code: '',
                 points: '',
             },
             recitationIdToUpdate: '',
             recitationRecords: [],
             overAllRecitationRecord: [],
             studentFullName: '',
-            message: ''
+            message: '',
+            subj_name: '',
+            schoolYr: ''
         }
     },
     created() {
-        this.input.student_lrn = this.$route.params.student_lrn;
-       
-        axios.get(`http://localhost:8000/api/fetchrecitation/${this.input.student_lrn}`).then(
-            response => {
-                this.recitationRecords = response.data.recitationRecords;
-                this.overAllRecitationRecord = response.data.overAllRecitationResult[0];
-            })
+         this.input.student_lrn = this.$route.params.student_lrn;
+         this.input.subj_code = this.$route.params.subject_code;
+         this.schoolYr = this.$route.params.student_year;
+         console.log(this.input.student_lrn + '/ Recitation /' + this.input.subj_code)
+
         axios.get('http://localhost:8000/api/student/'+this.input.student_lrn)
             .then(response => {
-            this.studentFullName = response.data[0].FullName;
+             this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
         });
+
+        axios.get(`http://localhost:8000/api/subject/${this.input.subj_code}`).then(
+            response => {
+               this.subj_name = response.data[0].subj_name;
+        });
+
+        this.refreshList()
 
     },
     methods: {
@@ -132,12 +140,17 @@ export default {
             }
        },
        refreshList() {
-            axios.get(`http://localhost:8000/api/fetchrecitation/${this.input.student_lrn}`).then(
-            response => {
-                this.recitationRecords = response.data.recitationRecords;
-                this.overAllRecitationRecord = response.data.overAllRecitationResult[0];
-            }
-        )
+            axios.get(`http://localhost:8000/api/fetchrecitation/${this.input.student_lrn}/${this.input.subj_code}`).then(
+                response => {
+                    console.log(response)
+                    if (response.data.overAllRecitationResult.length == 0) {
+                        this.recitationRecords = null;
+                    }
+                    else {
+                        this.recitationRecords = response.data.recitationRecords;
+                        this.overAllRecitationRecord = response.data.overAllRecitationResult[0];
+                    }
+            })
        },
        clearInputs() {
            this.input.dateOfRecitation = '';

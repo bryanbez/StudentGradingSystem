@@ -17,7 +17,7 @@ class CtrlGradeCritea extends Controller
         return CriteaResources::collection($fetchAllGradeCritea);
 
     }
-    public function fetchAllStudentRecords($student_lrn) {
+    public function fetchAllStudentRecords($student_lrn, $subject_code) {
 
         $critea = new GradeCriteaModel();
 
@@ -25,20 +25,22 @@ class CtrlGradeCritea extends Controller
         foreach($fetchAllGradeCritea as $singleCritea) {
 
             if($singleCritea->critea == 'Assignment') {
-                $assignmentRecords = $critea->calculateAssignmentRecords($student_lrn);
+                $assignmentRecords = $critea->calculateAssignmentRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Exam') {
-                $examRecords = $critea->calculateExamRecords($student_lrn);
+                $examRecords = $critea->calculateExamRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Project') {
-                $projectRecords = $critea->calculateProjectRecords($student_lrn);
+                $projectRecords = $critea->calculateProjectRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Quiz') {
-                $quizRecords = $critea->calculateQuizRecords($student_lrn);
+                $quizRecords = $critea->calculateQuizRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Recitation') {
-                $recitationRecords = $critea->calculateRecitationRecords($student_lrn);
+                $recitationRecords = $critea->calculateRecitationRecords($student_lrn, $subject_code);
             }
+
+        
         }
 
         return response()->json([

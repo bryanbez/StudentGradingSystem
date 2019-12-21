@@ -22,11 +22,11 @@ export default [
     { path: '/printgrades', component: PrintGrades},
     { path: '/settings', component: Settings },
     { path: '/managestudentsubjectgrades/:student_lrn/:student_year', name: 'managestudentsubjectgrades', component: ManageStudentSubjectGrades },
-    { path: '/viewgrades/:student_lrn', name: 'viewgrades', component: AllCritea },
-    { path: '/viewgrades/:student_lrn/exam/', name: 'exam', component: Exam },
-    { path: '/viewgrades/:student_lrn/assignment/', name: 'assignment', component: Assigment },
-    { path: '/viewgrades/:student_lrn/project/', name: 'project', component: Projects },
-    { path: '/viewgrades/:student_lrn/quiz/', name: 'quiz', component: Quiz },
-    { path: '/viewgrades/:student_lrn/recitation/', name: 'recitation', component: Recitation },
-    { path: '/viewstudent/:student_lrn', name: 'viewstudent', component: ViewStudent }
+    { path: '/viewgrades/:student_lrn/:student_year/:subject_code/exam', name: 'exam', component: Exam },
+    { path: '/viewgrades/:student_lrn/:student_year/:subject_code/assignment/', name: 'assignment', component: Assigment },
+    { path: '/viewgrades/:student_lrn/:student_year/:subject_code/project/', name: 'project', component: Projects },
+    { path: '/viewgrades/:student_lrn/:student_year/:subject_code/quiz/', name: 'quiz', component: Quiz },
+    { path: '/viewgrades/:student_lrn/:student_year/:subject_code/recitation', name: 'recitation', component: Recitation },
+    { path: '/viewstudent/:student_lrn', name: 'viewstudent', component: ViewStudent },
+    { path: '/managestudentgrades/:student_lrn/:student_year/:subject_code', name: 'managestudentgrades', component: AllCritea }
 ]

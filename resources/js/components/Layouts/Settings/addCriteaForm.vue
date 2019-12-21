@@ -14,6 +14,11 @@
                 <input class="form-control" type="text" v-model="criteaInfo.criteaPercentage" />
                 <span v-if="insertMsg.criteaPercentage" class="error"> {{ insertMsg.criteaPercentage | trimCharacters }}</span> 
             </div>
+            <div class="col-sm-12 col-md-12 col-lg-12 mb-2">
+                <label for="">Default Critea Grade</label>
+                <input class="form-control" type="text" v-model="criteaInfo.defaultCriteaGrade" />
+                <span v-if="insertMsg.defaultCriteaGrade" class="error"> {{ insertMsg.defaultCriteaGrade | trimCharacters }}</span> 
+            </div>
 
             <div class="col-md-12 col-lg-12 mt-5">
                 <button type="submit" class="btn btn-primary" @click="clearNotification">Add Critea</button>
@@ -30,6 +35,7 @@ export default {
             criteaInfo: {
                 criteaName: '',
                 criteaPercentage: '',
+                defaultCriteaGrade: '',
             },
             statusOfUpdate: '',
             insertMsg: ''
@@ -57,6 +63,7 @@ export default {
         clearTextboxes() {
             this.criteaInfo.criteaName = '';
             this.criteaInfo.criteaPercentage = '';
+            this.criteaInfo.defaultCriteaGrade = '';
         },
         refreshList(status) {
             this.$emit('refreshList', status);

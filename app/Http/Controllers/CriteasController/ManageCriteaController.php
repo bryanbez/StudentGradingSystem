@@ -81,7 +81,8 @@ class ManageCriteaController extends Controller
     {
         $validateRequest = $request->validate([
             'textcriteaName' => 'required',
-            'textcriteaPercentage' => 'required'
+            'textcriteaPercentage' => 'required',
+            'defaultCriteaGrade' => 'required'
         ]);
 
         $updateCritea = new ManageCriteaModel;

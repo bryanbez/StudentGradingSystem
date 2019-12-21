@@ -16,6 +16,7 @@ class GradeCriteaMigrate extends Migration
         Schema::create('tblGradeCritea', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('critea');
+            $table->integer('defaultGrade');
             $table->integer('percentage');
             $table->timestamps();
         });

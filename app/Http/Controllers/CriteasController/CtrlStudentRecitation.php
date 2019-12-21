@@ -16,7 +16,7 @@ class CtrlStudentRecitation extends Controller
         //
     }
 
-    public function fetchRecitationRecordByStudentId($student_lrn) 
+    public function fetchRecitationRecordByStudentId($student_lrn, $subject_code) 
     {
         $fetchAllRecitationRecord = RecitationModel::where('student_lrn', $student_lrn)->get();
 
@@ -28,12 +28,12 @@ class CtrlStudentRecitation extends Controller
                 WHEN SUM(points) = 1 THEN '75' 
                 ELSE '65' 
         END AS equivalent   
-        FROM tblRecitation WHERE student_lrn=$student_lrn GROUP BY student_lrn");
+        FROM tblRecitation WHERE student_lrn=$student_lrn AND subj_code='$subject_code' GROUP BY student_lrn");
 
         if($fetchAllRecitationRecord->isEmpty()) {
             $noResult = new GradeCriteaModel();
             return [
-                'overAllRecitationResult' => $noResult->returnNoResult($student_lrn, 'recitation_count', 'Recitation')
+                'overAllRecitationResult' => $noResult->returnNoResult($student_lrn, 'recitation_count', 'Recitation', $subject_code)
             ];
         }
         else {
@@ -56,6 +56,7 @@ class CtrlStudentRecitation extends Controller
             $saveRecitation = new RecitationModel;
             $saveRecitation->student_lrn = $request->student_lrn;
             $saveRecitation->date_of_recitation = $request->dateOfRecitation;
+            $saveRecitation->subj_code = $request->subj_code;
             $saveRecitation->points = $request->points;
             $saveRecitation->save();
 

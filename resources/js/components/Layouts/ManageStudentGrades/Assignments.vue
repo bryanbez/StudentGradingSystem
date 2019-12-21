@@ -8,9 +8,9 @@
                     <p> {{ message }}  <a style="float: right; cursor: pointer" @click="dismissMessage()">X</a></p>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
                 </div>
                <br />
-                <h3>Assignments of {{ studentFullName }}</h3>
+                <h3>Assignments of {{ studentFullName }} in the subject of {{ subj_name }}</h3>
                  <hr />
-                   <h5> Total Assignments: {{ assignmentResult.assignment_count }} </h5>
+                   <h5 v-if="allAssignmentRecords != null"> Total Assignments: {{ assignmentResult.assignment_count }} </h5>
                   <hr />
                   <h5> Add/ Update Assignment Records</h5>
                   <form @submit.prevent="saveOrUpdateAssignmentRecord">
@@ -30,28 +30,34 @@
                      <td> <button class="btn btn-primary" @click="clearInputs()">Clear</button> </td>
                     <br />
                     <hr />
-                    <h5> Assignment Records</h5>
-                    <table class="table table-bordered">
-                        <tr>
-                            <th> Date Given</th>
-                            <th> Grade </th>
-                            <th colspan="2"> Options </th>
-                        </tr>
-                        <tr v-for="singleAssignmentRecord in allAssignmentRecords" :key="singleAssignmentRecord.assignment_id">
-                            <td> {{ singleAssignmentRecord.date_of_assignment }} </td>
-                            <td> {{ singleAssignmentRecord.grade }} </td>
-                           <td> <button class="btn btn-primary" @click="editAssignmentRecord(singleAssignmentRecord.assignment_id)">Edit</button> </td>
-                            <td> <button class="btn btn-danger" @click="removeAssignmentRecord(singleAssignmentRecord.assignment_id)">Remove</button> </td>
-                        </tr>
-                        <tr>
-                            <td>Final Grade in Assignment</td>
-                            <td> {{ assignmentResult.equivalent }} ({{ assignmentResult.assignment_count }} of {{ assignmentResult.max_assignment_number}} assignment passed) </td>
-                        </tr>
-                    </table>
+                    <div v-if="allAssignmentRecords != null">
+
+                        <h5> Assignment Records</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th> Date Given</th>
+                                <th> Grade </th>
+                                <th colspan="2"> Options </th>
+                            </tr>
+                            <tr v-for="singleAssignmentRecord in allAssignmentRecords" :key="singleAssignmentRecord.assignment_id">
+                                <td> {{ singleAssignmentRecord.date_of_assignment }} </td>
+                                <td> {{ singleAssignmentRecord.grade }} </td>
+                            <td> <button class="btn btn-primary" @click="editAssignmentRecord(singleAssignmentRecord.assignment_id)">Edit</button> </td>
+                                <td> <button class="btn btn-danger" @click="removeAssignmentRecord(singleAssignmentRecord.assignment_id)">Remove</button> </td>
+                            </tr>
+                            <tr>
+                                <td>Final Grade in Assignment</td>
+                                <td> {{ assignmentResult.equivalent }} ({{ assignmentResult.assignment_count }} of {{ assignmentResult.max_assignment_number}} assignment passed) </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                    <p id="noResult" v-else> No Assignment Records </p>
                     <br />
+                   
                     <hr />
 
-                    <router-link v-bind:to="{name: 'viewgrades', params:{student_lrn: this.input.student_lrn}}" class="btn btn-danger">Back</router-link>
+                   <router-link :to="{name: 'managestudentgrades', params:{student_lrn: input.student_lrn, student_year: schoolYr, subject_code: input.subj_code}}" class="btn btn-danger"> Back </router-link>
 
             </div>
         </div>
@@ -65,28 +71,38 @@ export default {
             assignmentIdToUpdate: '',
             input: {
                 student_lrn: '',
+                subj_code: '',
                 dateOfAssignment: '',
                 grade: '',
             },
             allAssignmentRecords: [],
             studentFullName: '',
             assignmentResult: [],
-            message: ''
+            message: '',
+            subj_name: '',
+            schoolYr: '',
          
         }
     },
     created() {
-         this.input.student_lrn = this.$route.params.student_lrn;
-          axios.get(`http://localhost:8000/api/fetchassignments/${this.input.student_lrn}`, ).then(
-                response =>  {
-                     this.allAssignmentRecords = response.data.assignments;
-                     this.assignmentResult = response.data.overallData[0];  
-                }
-          );
-          axios.get('http://localhost:8000/api/student/'+this.input.student_lrn)
-             .then(response => {
-                this.studentFullName = response.data[0].FullName;
-          });
+            this.input.student_lrn = this.$route.params.student_lrn;
+            this.input.subj_code = this.$route.params.subject_code;
+            this.schoolYr = this.$route.params.student_year;
+            console.log(this.input.student_lrn + '/ Assignment /' + this.input.subj_code);
+
+            axios.get('http://localhost:8000/api/student/'+this.input.student_lrn)
+                .then(response => {
+                  this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
+            });
+
+            axios.get(`http://localhost:8000/api/subject/${this.input.subj_code}`).then(
+                response => {
+                    console.log(response)
+                    this.subj_name = response.data[0].subj_name;
+            });
+
+
+          this.refreshList()
     },
     methods: {
        dismissMessage() {
@@ -140,12 +156,17 @@ export default {
             this.input.grade = '';
        },
        refreshList() {
-            axios.get(`http://localhost:8000/api/fetchassignments/${this.input.student_lrn}`, ).then(
-                response =>  {
-                      this.allAssignmentRecords = response.data.assignments;
-                      this.assignmentResult = response.data.overallData[0];     
-                }
-          );
+            axios.get(`http://localhost:8000/api/fetchassignments/${this.input.student_lrn}/${this.input.subj_code}`).then(
+                response => {
+                    console.log(response.data)
+                     if (response.data.assignments.length == 0) {
+                        this.allAssignmentRecords = null;
+                     }
+                     else {
+                        this.allAssignmentRecords = response.data.assignments;
+                        this.assignmentResult = response.data.overallData[0]; 
+                    }
+            });
           
        }
      

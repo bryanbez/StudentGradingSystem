@@ -2153,24 +2153,32 @@ __webpack_require__.r(__webpack_exports__);
       assignmentRecords: [],
       projectRecords: [],
       quizRecords: [],
-      recitationRecords: []
+      recitationRecords: [],
+      subj_code: '',
+      subj_name: '',
+      school_yr: ''
     };
   },
   created: function created() {
     var _this = this;
 
     this.student_lrn = this.$route.params.student_lrn;
+    this.subj_code = this.$route.params.subject_code;
+    this.school_yr = this.$route.params.student_year;
+    console.log(this.subj_code);
     axios.get('http://localhost:8000/api/student/' + this.student_lrn).then(function (response) {
-      _this.studentFullName = response.data[0].FullName;
+      _this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName + ' ' + response.data[0].studentMiddleName;
     });
-    axios.get('http://127.0.0.1:8000/api/fetchStudentRecords/' + this.student_lrn).then(function (response) {
+    axios.get("http://localhost:8000/api/subject/".concat(this.subj_code)).then(function (response) {
+      _this.subj_name = response.data[0].subj_name;
+    });
+    axios.get("http://127.0.0.1:8000/api/fetchStudentRecords/".concat(this.student_lrn, "/").concat(this.subj_code)).then(function (response) {
       _this.criteas = response.data;
       _this.examRecords = response.data.examRecords[0];
       _this.assignmentRecords = response.data.assignmentRecords[0];
       _this.projectRecords = response.data.projectRecords[0];
       _this.quizRecords = response.data.quizRecords[0];
       _this.recitationRecords = response.data.recitationRecords[0];
-      console.log(response.data);
     });
   },
   computed: {
@@ -2260,32 +2268,45 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       assignmentIdToUpdate: '',
       input: {
         student_lrn: '',
+        subj_code: '',
         dateOfAssignment: '',
         grade: ''
       },
       allAssignmentRecords: [],
       studentFullName: '',
       assignmentResult: [],
-      message: ''
+      message: '',
+      subj_name: '',
+      schoolYr: ''
     };
   },
   created: function created() {
     var _this = this;
 
     this.input.student_lrn = this.$route.params.student_lrn;
-    axios.get("http://localhost:8000/api/fetchassignments/".concat(this.input.student_lrn)).then(function (response) {
-      _this.allAssignmentRecords = response.data.assignments;
-      _this.assignmentResult = response.data.overallData[0];
-    });
+    this.input.subj_code = this.$route.params.subject_code;
+    this.schoolYr = this.$route.params.student_year;
+    console.log(this.input.student_lrn + '/ Assignment /' + this.input.subj_code);
     axios.get('http://localhost:8000/api/student/' + this.input.student_lrn).then(function (response) {
-      _this.studentFullName = response.data[0].FullName;
+      _this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
     });
+    axios.get("http://localhost:8000/api/subject/".concat(this.input.subj_code)).then(function (response) {
+      console.log(response);
+      _this.subj_name = response.data[0].subj_name;
+    });
+    this.refreshList();
   },
   methods: {
     dismissMessage: function dismissMessage() {
@@ -2343,9 +2364,15 @@ __webpack_require__.r(__webpack_exports__);
     refreshList: function refreshList() {
       var _this5 = this;
 
-      axios.get("http://localhost:8000/api/fetchassignments/".concat(this.input.student_lrn)).then(function (response) {
-        _this5.allAssignmentRecords = response.data.assignments;
-        _this5.assignmentResult = response.data.overallData[0];
+      axios.get("http://localhost:8000/api/fetchassignments/".concat(this.input.student_lrn, "/").concat(this.input.subj_code)).then(function (response) {
+        console.log(response.data);
+
+        if (response.data.assignments.length == 0) {
+          _this5.allAssignmentRecords = null;
+        } else {
+          _this5.allAssignmentRecords = response.data.assignments;
+          _this5.assignmentResult = response.data.overallData[0];
+        }
       });
     }
   }
@@ -2439,27 +2466,33 @@ __webpack_require__.r(__webpack_exports__);
       input: {
         student_lrn: '',
         dateOfExam: '',
+        subj_code: '',
         noOfItems: '',
         score: ''
       },
       allExamRecords: [],
       overAllExamResult: [],
       studentFullName: '',
-      message: ''
+      message: '',
+      subj_name: '',
+      schoolYr: ''
     };
   },
   created: function created() {
     var _this = this;
 
     this.input.student_lrn = this.$route.params.student_lrn;
-    axios.get("http://localhost:8000/api/fetchexams/".concat(this.input.student_lrn)).then(function (response) {
-      _this.allExamRecords = response.data.exams;
-      _this.overAllExamResult = response.data.overallExamData[0];
-      console.log(_this.allExamRecords);
-    });
+    this.input.subj_code = this.$route.params.subject_code;
+    this.schoolYr = this.$route.params.student_year;
+    console.log(this.input.student_lrn + '/ Exam /' + this.input.subj_code);
     axios.get('http://localhost:8000/api/student/' + this.input.student_lrn).then(function (response) {
-      _this.studentFullName = response.data[0].FullName;
+      _this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
     });
+    axios.get("http://localhost:8000/api/subject/".concat(this.input.subj_code)).then(function (response) {
+      console.log(response);
+      _this.subj_name = response.data[0].subj_name;
+    });
+    this.refreshList();
   },
   methods: {
     dismissMessage: function dismissMessage() {
@@ -2521,10 +2554,15 @@ __webpack_require__.r(__webpack_exports__);
     refreshList: function refreshList() {
       var _this5 = this;
 
-      axios.get("http://localhost:8000/api/fetchexams/".concat(this.input.student_lrn)).then(function (response) {
-        _this5.allExamRecords = response.data.exams;
-        _this5.overAllExamResult = response.data.overallExamData[0];
-        console.log(_this5.overAllExamResult);
+      axios.get("http://localhost:8000/api/fetchexams/".concat(this.input.student_lrn, "/").concat(this.input.subj_code)).then(function (response) {
+        console.log(response.data);
+
+        if (response.data.exams === 'empty') {
+          _this5.allExamRecords = null;
+        } else {
+          _this5.allExamRecords = response.data.exams;
+          _this5.overAllExamResult = response.data.overallExamData[0];
+        }
       });
     }
   },
@@ -2605,33 +2643,46 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       input: {
         student_lrn: '',
         dateOfProject: '',
-        grade: ''
+        grade: '',
+        subj_code: ''
       },
       projectIdToUpdate: '',
       projectRecords: [],
       projectData: [],
       message: '',
-      studentFullName: ''
+      studentFullName: '',
+      subj_name: '',
+      schoolYr: ''
     };
   },
   created: function created() {
     var _this = this;
 
     this.input.student_lrn = this.$route.params.student_lrn;
-    axios.get("http://localhost:8000/api/fetchprojects/".concat(this.input.student_lrn)).then(function (response) {
-      _this.projectRecords = response.data.projectRecords;
-      _this.projectData = response.data.projectData[0];
-      console.log(_this.projectData);
-    });
+    this.input.subj_code = this.$route.params.subject_code;
+    this.schoolYr = this.$route.params.student_year;
+    console.log(this.input.student_lrn + '/ Project /' + this.$route.params.subject_code);
     axios.get('http://localhost:8000/api/student/' + this.input.student_lrn).then(function (response) {
-      _this.studentFullName = response.data[0].FullName;
+      _this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
     });
+    axios.get("http://localhost:8000/api/subject/".concat(this.input.subj_code)).then(function (response) {
+      _this.subj_name = response.data[0].subj_name;
+    });
+    this.refreshList();
   },
   methods: {
     dismissMessage: function dismissMessage() {
@@ -2685,8 +2736,14 @@ __webpack_require__.r(__webpack_exports__);
       var _this5 = this;
 
       axios.get("http://localhost:8000/api/fetchprojects/".concat(this.input.student_lrn)).then(function (response) {
-        _this5.projectRecords = response.data.projectRecords;
-        _this5.projectData = response.data.projectData;
+        console.log(response.data);
+
+        if (response.data.projectData.length == 0) {
+          _this5.projectRecords = null;
+        } else {
+          _this5.projectRecords = response.data.projectRecords;
+          _this5.projectData = response.data.projectData[0];
+        }
       });
     },
     clearInputs: function clearInputs() {
@@ -2768,33 +2825,40 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       quizIdToUpdate: '',
       input: {
         student_lrn: '',
+        subj_code: '',
         dateOfQuiz: '',
         noOfItems: '',
         score: ''
       },
       allQuizRecords: [],
+      schoolYr: '',
       studentFullName: '',
-      quizResults: []
+      quizResults: [],
+      subj_name: ''
     };
   },
   created: function created() {
     var _this = this;
 
     this.input.student_lrn = this.$route.params.student_lrn;
-    axios.get("http://localhost:8000/api/fetchquiz/".concat(this.input.student_lrn)).then(function (response) {
-      _this.allQuizRecords = response.data.quizzez;
-      _this.quizResults = response.data.overallData[0];
-      console.log(response.data);
-    });
+    this.input.subj_code = this.$route.params.subject_code;
+    console.log(this.input.student_lrn + '/ Quiz /' + this.input.subj_code);
     axios.get('http://localhost:8000/api/student/' + this.input.student_lrn).then(function (response) {
-      _this.studentFullName = response.data[0].FullName;
+      _this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
     });
+    axios.get("http://localhost:8000/api/subject/".concat(this.input.subj_code)).then(function (response) {
+      _this.subj_name = response.data[0].subj_name;
+    });
+    this.refreshList();
   },
   methods: {
     saveOrUpdateQuizRecord: function saveOrUpdateQuizRecord() {
@@ -2850,8 +2914,14 @@ __webpack_require__.r(__webpack_exports__);
       var _this5 = this;
 
       axios.get("http://localhost:8000/api/fetchquiz/".concat(this.input.student_lrn)).then(function (response) {
-        _this5.allQuizRecords = response.data.quizzez;
-        _this5.quizResults = response.data.overallData[0];
+        console.log(response);
+
+        if (response.data.quizzez.length == 0) {
+          _this5.allQuizRecords = null;
+        } else {
+          _this5.allQuizRecords = response.data.quizzez;
+          _this5.quizResults = response.data.overallData[0];
+        }
       });
     }
   },
@@ -2941,26 +3011,32 @@ __webpack_require__.r(__webpack_exports__);
       input: {
         student_lrn: '',
         dateOfRecitation: '',
+        subj_code: '',
         points: ''
       },
       recitationIdToUpdate: '',
       recitationRecords: [],
       overAllRecitationRecord: [],
       studentFullName: '',
-      message: ''
+      message: '',
+      subj_name: '',
+      schoolYr: ''
     };
   },
   created: function created() {
     var _this = this;
 
     this.input.student_lrn = this.$route.params.student_lrn;
-    axios.get("http://localhost:8000/api/fetchrecitation/".concat(this.input.student_lrn)).then(function (response) {
-      _this.recitationRecords = response.data.recitationRecords;
-      _this.overAllRecitationRecord = response.data.overAllRecitationResult[0];
-    });
+    this.input.subj_code = this.$route.params.subject_code;
+    this.schoolYr = this.$route.params.student_year;
+    console.log(this.input.student_lrn + '/ Recitation /' + this.input.subj_code);
     axios.get('http://localhost:8000/api/student/' + this.input.student_lrn).then(function (response) {
-      _this.studentFullName = response.data[0].FullName;
+      _this.studentFullName = response.data[0].studentLastName + ', ' + response.data[0].studentFirstName;
     });
+    axios.get("http://localhost:8000/api/subject/".concat(this.input.subj_code)).then(function (response) {
+      _this.subj_name = response.data[0].subj_name;
+    });
+    this.refreshList();
   },
   methods: {
     saveOrUpdateProjectRecord: function saveOrUpdateProjectRecord() {
@@ -3009,9 +3085,15 @@ __webpack_require__.r(__webpack_exports__);
     refreshList: function refreshList() {
       var _this5 = this;
 
-      axios.get("http://localhost:8000/api/fetchrecitation/".concat(this.input.student_lrn)).then(function (response) {
-        _this5.recitationRecords = response.data.recitationRecords;
-        _this5.overAllRecitationRecord = response.data.overAllRecitationResult[0];
+      axios.get("http://localhost:8000/api/fetchrecitation/".concat(this.input.student_lrn, "/").concat(this.input.subj_code)).then(function (response) {
+        console.log(response);
+
+        if (response.data.overAllRecitationResult.length == 0) {
+          _this5.recitationRecords = null;
+        } else {
+          _this5.recitationRecords = response.data.recitationRecords;
+          _this5.overAllRecitationRecord = response.data.overAllRecitationResult[0];
+        }
       });
     },
     clearInputs: function clearInputs() {
@@ -3365,8 +3447,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -3374,13 +3454,16 @@ __webpack_require__.r(__webpack_exports__);
       student_info: {
         student_lrn: '',
         student_yr: '',
-        student_name: ''
-      }
+        student_name: '',
+        student_yr_no_filter: ''
+      },
+      finalGrade: ''
     };
   },
   created: function created() {
     this.student_info.student_lrn = this.$route.params.student_lrn;
     this.student_info.student_yr = this.yearFilter(this.$route.params.student_year);
+    this.student_info.student_yr_no_filter = this.$route.params.student_year;
     this.fetchSubjectsInSpecificYearAndStudentName(this.student_info.student_yr, this.student_info.student_lrn);
   },
   methods: {
@@ -3388,7 +3471,6 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       axios.get('http://localhost:8000/api/showSubjectInYear/' + studentYear).then(function (response) {
-        console.log(response.data);
         _this.fetchedSubjectInfo = response.data;
       });
       axios.get('http://localhost:8000/api/student/' + student_lrn).then(function (response) {
@@ -3673,13 +3755,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['criteaID'],
   data: function data() {
     return {
       criteasToUpdate: {
         textcriteaName: '',
-        textcriteaPercentage: ''
+        textcriteaPercentage: '',
+        defaultCriteaGrade: ''
       },
       statusOfUpdate: '',
       updateMsg: ''
@@ -3695,6 +3783,7 @@ __webpack_require__.r(__webpack_exports__);
       axios.get("http://localhost:8000/api/managecritea/".concat(this.criteaID)).then(function (response) {
         _this.criteasToUpdate.textcriteaName = response.data[0].critea;
         _this.criteasToUpdate.textcriteaPercentage = response.data[0].percentage;
+        _this.criteasToUpdate.defaultCriteaGrade = response.data[0].defaultGrade;
       });
     },
     updateCritea: function updateCritea() {
@@ -3721,6 +3810,7 @@ __webpack_require__.r(__webpack_exports__);
     clearTextboxes: function clearTextboxes() {
       this.criteasToUpdate.textcriteaName = '';
       this.criteasToUpdate.textcriteaPercentage = '';
+      this.criteasToUpdate.defaultCriteaGrade = '';
     },
     refreshList: function refreshList(status) {
       this.$emit('refreshList', status);
@@ -3769,12 +3859,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       criteaInfo: {
         criteaName: '',
-        criteaPercentage: ''
+        criteaPercentage: '',
+        defaultCriteaGrade: ''
       },
       statusOfUpdate: '',
       insertMsg: ''
@@ -3804,6 +3900,7 @@ __webpack_require__.r(__webpack_exports__);
     clearTextboxes: function clearTextboxes() {
       this.criteaInfo.criteaName = '';
       this.criteaInfo.criteaPercentage = '';
+      this.criteaInfo.defaultCriteaGrade = '';
     },
     refreshList: function refreshList(status) {
       this.$emit('refreshList', status);
@@ -4530,6 +4627,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -4581,6 +4681,11 @@ __webpack_require__.r(__webpack_exports__);
     },
     resetToEditData: function resetToEditData() {
       this.showModal = false;
+    }
+  },
+  filters: {
+    putPercentage: function putPercentage(value) {
+      return value + '%';
     }
   }
 });
@@ -9102,6 +9207,25 @@ exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/c
 
 // module
 exports.push([module.i, "\n#noResult[data-v-e0c2bf66] {\n    font-weight: bold;\n    font-size: 14px;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css&":
+/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css& ***!
+  \**************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../../node_modules/css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n#noResult[data-v-445000fa] {\n    font-weight: bold;\n}\n", ""]);
 
 // exports
 
@@ -60611,6 +60735,36 @@ if(false) {}
 
 /***/ }),
 
+/***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css&":
+/*!******************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css& ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../../node_modules/css-loader??ref--6-1!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/src??ref--6-2!../../../../../node_modules/vue-loader/lib??vue-loader-options!./Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css& */ "./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css&");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../../node_modules/style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
 /***/ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Layouts/ManageStudentGrades/Recitation.vue?vue&type=style&index=0&id=017f0048&scoped=true&lang=css&":
 /*!************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/style-loader!./node_modules/css-loader??ref--6-1!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Layouts/ManageStudentGrades/Recitation.vue?vue&type=style&index=0&id=017f0048&scoped=true&lang=css& ***!
@@ -65280,7 +65434,13 @@ var render = function() {
       _c("br"),
       _vm._v(" "),
       _c("h3", [
-        _vm._v(" Viewing Grades of " + _vm._s(_vm.studentFullName) + "  ")
+        _vm._v(
+          " Viewing Grades of " +
+            _vm._s(_vm.studentFullName) +
+            " in " +
+            _vm._s(_vm.subj_name) +
+            "  "
+        )
       ]),
       _vm._v(" "),
       _c("div", { staticClass: "row" }, [
@@ -65338,7 +65498,10 @@ var render = function() {
                   attrs: {
                     to: {
                       name: "exam",
-                      params: { student_lrn: this.student_lrn }
+                      params: {
+                        student_lrn: this.student_lrn,
+                        subject_code: _vm.subj_code
+                      }
                     }
                   }
                 },
@@ -65410,7 +65573,10 @@ var render = function() {
                   attrs: {
                     to: {
                       name: "assignment",
-                      params: { student_lrn: this.student_lrn }
+                      params: {
+                        student_lrn: this.student_lrn,
+                        subject_code: _vm.subj_code
+                      }
                     }
                   }
                 },
@@ -65477,7 +65643,11 @@ var render = function() {
                   attrs: {
                     to: {
                       name: "project",
-                      params: { student_lrn: this.student_lrn }
+                      params: {
+                        student_lrn: this.student_lrn,
+                        subject_code: _vm.subj_code,
+                        student_year: _vm.school_yr
+                      }
                     }
                   }
                 },
@@ -65511,7 +65681,7 @@ var render = function() {
             ]),
             _vm._v(" "),
             _c("p", [
-              _vm._v(" Exam Count: " + _vm._s(_vm.quizRecords.quiz_count))
+              _vm._v(" Quiz Count: " + _vm._s(_vm.quizRecords.quiz_count))
             ]),
             _vm._v(" "),
             _c("p", [
@@ -65542,7 +65712,10 @@ var render = function() {
                   attrs: {
                     to: {
                       name: "quiz",
-                      params: { student_lrn: this.student_lrn }
+                      params: {
+                        student_lrn: this.student_lrn,
+                        subject_code: _vm.subj_code
+                      }
                     }
                   }
                 },
@@ -65614,7 +65787,10 @@ var render = function() {
                   attrs: {
                     to: {
                       name: "recitation",
-                      params: { student_lrn: this.student_lrn }
+                      params: {
+                        student_lrn: this.student_lrn,
+                        subject_code: _vm.subj_code
+                      }
                     }
                   }
                 },
@@ -65642,8 +65818,19 @@ var render = function() {
       _vm._v(" "),
       _c(
         "router-link",
-        { staticClass: "btn btn-danger", attrs: { to: "/managegrades" } },
-        [_vm._v("Back")]
+        {
+          staticClass: "btn btn-danger",
+          attrs: {
+            to: {
+              name: "managestudentsubjectgrades",
+              params: {
+                student_lrn: _vm.student_lrn,
+                student_year: _vm.school_yr
+              }
+            }
+          }
+        },
+        [_vm._v(" Back ")]
       )
     ],
     1
@@ -65701,17 +65888,26 @@ var render = function() {
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
-          _c("h3", [_vm._v("Assignments of " + _vm._s(_vm.studentFullName))]),
+          _c("h3", [
+            _vm._v(
+              "Assignments of " +
+                _vm._s(_vm.studentFullName) +
+                " in the subject of " +
+                _vm._s(_vm.subj_name)
+            )
+          ]),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h5", [
-            _vm._v(
-              " Total Assignments: " +
-                _vm._s(_vm.assignmentResult.assignment_count) +
-                " "
-            )
-          ]),
+          _vm.allAssignmentRecords != null
+            ? _c("h5", [
+                _vm._v(
+                  " Total Assignments: " +
+                    _vm._s(_vm.assignmentResult.assignment_count) +
+                    " "
+                )
+              ])
+            : _vm._e(),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
@@ -65809,84 +66005,98 @@ var render = function() {
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h5", [_vm._v(" Assignment Records")]),
-          _vm._v(" "),
-          _c(
-            "table",
-            { staticClass: "table table-bordered" },
-            [
-              _vm._m(2),
-              _vm._v(" "),
-              _vm._l(_vm.allAssignmentRecords, function(
-                singleAssignmentRecord
-              ) {
-                return _c("tr", { key: singleAssignmentRecord.assignment_id }, [
-                  _c("td", [
-                    _vm._v(
-                      " " +
-                        _vm._s(singleAssignmentRecord.date_of_assignment) +
-                        " "
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _vm._v(" " + _vm._s(singleAssignmentRecord.grade) + " ")
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        on: {
-                          click: function($event) {
-                            return _vm.editAssignmentRecord(
-                              singleAssignmentRecord.assignment_id
-                            )
-                          }
-                        }
-                      },
-                      [_vm._v("Edit")]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-danger",
-                        on: {
-                          click: function($event) {
-                            return _vm.removeAssignmentRecord(
-                              singleAssignmentRecord.assignment_id
-                            )
-                          }
-                        }
-                      },
-                      [_vm._v("Remove")]
-                    )
-                  ])
-                ])
-              }),
-              _vm._v(" "),
-              _c("tr", [
-                _c("td", [_vm._v("Final Grade in Assignment")]),
+          _vm.allAssignmentRecords != null
+            ? _c("div", [
+                _c("h5", [_vm._v(" Assignment Records")]),
                 _vm._v(" "),
-                _c("td", [
-                  _vm._v(
-                    " " +
-                      _vm._s(_vm.assignmentResult.equivalent) +
-                      " (" +
-                      _vm._s(_vm.assignmentResult.assignment_count) +
-                      " of " +
-                      _vm._s(_vm.assignmentResult.max_assignment_number) +
-                      " assignment passed) "
-                  )
-                ])
+                _c(
+                  "table",
+                  { staticClass: "table table-bordered" },
+                  [
+                    _vm._m(2),
+                    _vm._v(" "),
+                    _vm._l(_vm.allAssignmentRecords, function(
+                      singleAssignmentRecord
+                    ) {
+                      return _c(
+                        "tr",
+                        { key: singleAssignmentRecord.assignment_id },
+                        [
+                          _c("td", [
+                            _vm._v(
+                              " " +
+                                _vm._s(
+                                  singleAssignmentRecord.date_of_assignment
+                                ) +
+                                " "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              " " + _vm._s(singleAssignmentRecord.grade) + " "
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-primary",
+                                on: {
+                                  click: function($event) {
+                                    return _vm.editAssignmentRecord(
+                                      singleAssignmentRecord.assignment_id
+                                    )
+                                  }
+                                }
+                              },
+                              [_vm._v("Edit")]
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c(
+                              "button",
+                              {
+                                staticClass: "btn btn-danger",
+                                on: {
+                                  click: function($event) {
+                                    return _vm.removeAssignmentRecord(
+                                      singleAssignmentRecord.assignment_id
+                                    )
+                                  }
+                                }
+                              },
+                              [_vm._v("Remove")]
+                            )
+                          ])
+                        ]
+                      )
+                    }),
+                    _vm._v(" "),
+                    _c("tr", [
+                      _c("td", [_vm._v("Final Grade in Assignment")]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v(
+                          " " +
+                            _vm._s(_vm.assignmentResult.equivalent) +
+                            " (" +
+                            _vm._s(_vm.assignmentResult.assignment_count) +
+                            " of " +
+                            _vm._s(_vm.assignmentResult.max_assignment_number) +
+                            " assignment passed) "
+                        )
+                      ])
+                    ])
+                  ],
+                  2
+                )
               ])
-            ],
-            2
-          ),
+            : _c("p", { attrs: { id: "noResult" } }, [
+                _vm._v(" No Assignment Records ")
+              ]),
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
@@ -65898,12 +66108,16 @@ var render = function() {
               staticClass: "btn btn-danger",
               attrs: {
                 to: {
-                  name: "viewgrades",
-                  params: { student_lrn: this.input.student_lrn }
+                  name: "managestudentgrades",
+                  params: {
+                    student_lrn: _vm.input.student_lrn,
+                    student_year: _vm.schoolYr,
+                    subject_code: _vm.input.subj_code
+                  }
                 }
               }
             },
-            [_vm._v("Back")]
+            [_vm._v(" Back ")]
           )
         ],
         1
@@ -66000,15 +66214,26 @@ var render = function() {
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
-          _c("h3", [_vm._v("Exams of " + _vm._s(_vm.studentFullName))]),
+          _c("h3", [
+            _vm._v(
+              "Exams of " +
+                _vm._s(_vm.studentFullName) +
+                " in the subject of " +
+                _vm._s(_vm.subj_name)
+            )
+          ]),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h5", [
-            _vm._v(
-              " Total Exams: " + _vm._s(_vm.overAllExamResult.exam_count) + " "
-            )
-          ]),
+          _vm.allExamRecords != null
+            ? _c("h5", [
+                _vm._v(
+                  " Total Exams: " +
+                    _vm._s(_vm.overAllExamResult.exam_count) +
+                    " "
+                )
+              ])
+            : _vm._e(),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
@@ -66126,7 +66351,7 @@ var render = function() {
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
-          _vm.overAllExamResult.exam_count != 0
+          _vm.allExamRecords != null
             ? _c(
                 "table",
                 { staticClass: "table table-bordered" },
@@ -66207,12 +66432,16 @@ var render = function() {
               staticClass: "btn btn-danger",
               attrs: {
                 to: {
-                  name: "viewgrades",
-                  params: { student_lrn: this.input.student_lrn }
+                  name: "managestudentgrades",
+                  params: {
+                    student_lrn: _vm.input.student_lrn,
+                    student_year: _vm.schoolYr,
+                    subject_code: _vm.input.subj_code
+                  }
                 }
               }
             },
-            [_vm._v("Back")]
+            [_vm._v(" Back ")]
           )
         ],
         1
@@ -66313,15 +66542,26 @@ var render = function() {
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
-          _c("h3", [_vm._v("Projects of " + _vm._s(_vm.studentFullName))]),
+          _c("h3", [
+            _vm._v(
+              "Project Grade of " +
+                _vm._s(_vm.studentFullName) +
+                " in the subject of " +
+                _vm._s(_vm.subj_name)
+            )
+          ]),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h5", [
-            _vm._v(
-              " Total Projects: " + _vm._s(_vm.projectData.project_count) + " "
-            )
-          ]),
+          _vm.projectRecords != null
+            ? _c("h5", [
+                _vm._v(
+                  " Total Projects: " +
+                    _vm._s(_vm.projectData.project_count) +
+                    " "
+                )
+              ])
+            : _vm._e(),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
@@ -66419,72 +66659,80 @@ var render = function() {
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h5", [_vm._v(" Project Records")]),
-          _vm._v(" "),
-          _c(
-            "table",
-            { staticClass: "table table-bordered" },
-            [
-              _vm._m(2),
-              _vm._v(" "),
-              _vm._l(_vm.projectRecords, function(singleProjectRecord) {
-                return _c("tr", { key: singleProjectRecord.project_id }, [
-                  _c("td", [
-                    _vm._v(
-                      " " + _vm._s(singleProjectRecord.date_of_project) + "  "
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _vm._v(" " + _vm._s(singleProjectRecord.grade) + "  ")
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        on: {
-                          click: function($event) {
-                            return _vm.editProjectRecord(
-                              singleProjectRecord.project_id
-                            )
-                          }
-                        }
-                      },
-                      [_vm._v("Edit")]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-danger",
-                        on: {
-                          click: function($event) {
-                            return _vm.removeProjectRecord(
-                              singleProjectRecord.project_id
-                            )
-                          }
-                        }
-                      },
-                      [_vm._v("Remove")]
-                    )
-                  ])
-                ])
-              }),
-              _vm._v(" "),
-              _c("tr", [
-                _c("td", [_vm._v(" Final Grade: ")]),
+          _vm.projectRecords != null
+            ? _c("div", [
+                _c("h5", [_vm._v(" Project Records")]),
                 _vm._v(" "),
-                _c("td", { attrs: { colspan: "3" } }, [
-                  _vm._v(_vm._s(_vm.projectData.equivalent))
-                ])
+                _c(
+                  "table",
+                  { staticClass: "table table-bordered" },
+                  [
+                    _vm._m(2),
+                    _vm._v(" "),
+                    _vm._l(_vm.projectRecords, function(singleProjectRecord) {
+                      return _c("tr", { key: singleProjectRecord.project_id }, [
+                        _c("td", [
+                          _vm._v(
+                            " " +
+                              _vm._s(singleProjectRecord.date_of_project) +
+                              "  "
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(" " + _vm._s(singleProjectRecord.grade) + "  ")
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-primary",
+                              on: {
+                                click: function($event) {
+                                  return _vm.editProjectRecord(
+                                    singleProjectRecord.project_id
+                                  )
+                                }
+                              }
+                            },
+                            [_vm._v("Edit")]
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-danger",
+                              on: {
+                                click: function($event) {
+                                  return _vm.removeProjectRecord(
+                                    singleProjectRecord.project_id
+                                  )
+                                }
+                              }
+                            },
+                            [_vm._v("Remove")]
+                          )
+                        ])
+                      ])
+                    }),
+                    _vm._v(" "),
+                    _c("tr", [
+                      _c("td", [_vm._v(" Final Grade: ")]),
+                      _vm._v(" "),
+                      _c("td", { attrs: { colspan: "3" } }, [
+                        _vm._v(_vm._s(_vm.projectData.equivalent))
+                      ])
+                    ])
+                  ],
+                  2
+                )
               ])
-            ],
-            2
-          ),
+            : _c("p", { attrs: { id: "noResult" } }, [
+                _vm._v(" No Project Records ")
+              ]),
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
@@ -66494,12 +66742,16 @@ var render = function() {
               staticClass: "btn btn-danger",
               attrs: {
                 to: {
-                  name: "viewgrades",
-                  params: { student_lrn: this.input.student_lrn }
+                  name: "managestudentgrades",
+                  params: {
+                    student_lrn: _vm.input.student_lrn,
+                    student_year: _vm.schoolYr,
+                    subject_code: _vm.input.subj_code
+                  }
                 }
               }
             },
-            [_vm._v("Back")]
+            [_vm._v(" Back ")]
           )
         ],
         1
@@ -66574,15 +66826,26 @@ var render = function() {
         [
           _c("br"),
           _vm._v(" "),
-          _c("h3", [_vm._v("Quizzes of " + _vm._s(_vm.studentFullName))]),
+          _c("h3", [
+            _vm._v(
+              "Quizzes of " +
+                _vm._s(_vm.studentFullName) +
+                " in the subject of " +
+                _vm._s(_vm.subj_name)
+            )
+          ]),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h4", [
-            _vm._v(
-              " Total Quizzes Take: " + _vm._s(_vm.quizResults.quiz_count) + " "
-            )
-          ]),
+          _vm.allQuizRecords != null
+            ? _c("h4", [
+                _vm._v(
+                  " Total Quizzes Take: " +
+                    _vm._s(_vm.quizResults.quiz_count) +
+                    " "
+                )
+              ])
+            : _vm._e(),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
@@ -66700,80 +66963,92 @@ var render = function() {
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h4", [_vm._v(" Quiz Records")]),
-          _vm._v(" "),
-          _c(
-            "table",
-            { staticClass: "table table-bordered" },
-            [
-              _vm._m(2),
-              _vm._v(" "),
-              _vm._l(_vm.allQuizRecords, function(singleQuizRecord) {
-                return _c("tr", { key: singleQuizRecord.quiz_id }, [
-                  _c("td", [
-                    _vm._v(" " + _vm._s(singleQuizRecord.date_of_quiz) + " ")
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _vm._v(" " + _vm._s(singleQuizRecord.no_of_items) + " ")
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _vm._v(" " + _vm._s(singleQuizRecord.score) + " ")
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        on: {
-                          click: function($event) {
-                            return _vm.editQuizRecord(singleQuizRecord.quiz_id)
-                          }
-                        }
-                      },
-                      [_vm._v("Edit")]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("td", [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-danger",
-                        on: {
-                          click: function($event) {
-                            return _vm.removeQuizRecord(
-                              singleQuizRecord.quiz_id
-                            )
-                          }
-                        }
-                      },
-                      [_vm._v("Remove")]
-                    )
-                  ])
-                ])
-              }),
-              _vm._v(" "),
-              _c("tr", [
-                _c("td", [_vm._v(" Quiz Grade:  ")]),
+          _vm.allQuizRecords != null
+            ? _c("div", [
+                _c("h4", [_vm._v(" Quiz Records")]),
                 _vm._v(" "),
-                _c("td", { attrs: { colspan: "4" } }, [
-                  _vm._v(
-                    " " +
-                      _vm._s(_vm.quizResults.equivalent) +
-                      " (" +
-                      _vm._s(_vm.quizResults.quiz_count) +
-                      " of " +
-                      _vm._s(_vm.quizResults.max_quiz_number) +
-                      " quiz taken) "
-                  )
-                ])
+                _c(
+                  "table",
+                  { staticClass: "table table-bordered" },
+                  [
+                    _vm._m(2),
+                    _vm._v(" "),
+                    _vm._l(_vm.allQuizRecords, function(singleQuizRecord) {
+                      return _c("tr", { key: singleQuizRecord.quiz_id }, [
+                        _c("td", [
+                          _vm._v(
+                            " " + _vm._s(singleQuizRecord.date_of_quiz) + " "
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(
+                            " " + _vm._s(singleQuizRecord.no_of_items) + " "
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v(" " + _vm._s(singleQuizRecord.score) + " ")
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-primary",
+                              on: {
+                                click: function($event) {
+                                  return _vm.editQuizRecord(
+                                    singleQuizRecord.quiz_id
+                                  )
+                                }
+                              }
+                            },
+                            [_vm._v("Edit")]
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-danger",
+                              on: {
+                                click: function($event) {
+                                  return _vm.removeQuizRecord(
+                                    singleQuizRecord.quiz_id
+                                  )
+                                }
+                              }
+                            },
+                            [_vm._v("Remove")]
+                          )
+                        ])
+                      ])
+                    }),
+                    _vm._v(" "),
+                    _c("tr", [
+                      _c("td", [_vm._v(" Quiz Grade:  ")]),
+                      _vm._v(" "),
+                      _c("td", { attrs: { colspan: "4" } }, [
+                        _vm._v(
+                          " " +
+                            _vm._s(_vm.quizResults.equivalent) +
+                            " (" +
+                            _vm._s(_vm.quizResults.quiz_count) +
+                            " of " +
+                            _vm._s(_vm.quizResults.max_quiz_number) +
+                            " quiz taken) "
+                        )
+                      ])
+                    ])
+                  ],
+                  2
+                )
               ])
-            ],
-            2
-          ),
+            : _c("p", { attrs: { id: "noResult" } }, [
+                _vm._v(" No Quiz Records ")
+              ]),
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
@@ -66785,8 +67060,11 @@ var render = function() {
               staticClass: "btn btn-danger",
               attrs: {
                 to: {
-                  name: "viewgrades",
-                  params: { student_lrn: this.input.student_lrn }
+                  name: "managestudentgrades",
+                  params: {
+                    student_lrn: _vm.input.student_lrn,
+                    subject_code: _vm.input.subj_code
+                  }
                 }
               }
             },
@@ -66895,13 +67173,15 @@ var render = function() {
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
-          _c("h5", [
-            _vm._v(
-              " Total Recitation: " +
-                _vm._s(_vm.overAllRecitationRecord.recitation_count) +
-                " "
-            )
-          ]),
+          _vm.recitationRecords != null
+            ? _c("h5", [
+                _vm._v(
+                  " Total Recitation: " +
+                    _vm._s(_vm.overAllRecitationRecord.recitation_count) +
+                    " "
+                )
+              ])
+            : _vm._e(),
           _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
@@ -66997,7 +67277,7 @@ var render = function() {
           _vm._v(" "),
           _c("br"),
           _vm._v(" "),
-          _vm.overAllRecitationRecord.recitation_count != 0
+          _vm.recitationRecords != null
             ? _c(
                 "table",
                 { staticClass: "table table-bordered" },
@@ -67086,8 +67366,12 @@ var render = function() {
               staticClass: "btn btn-danger",
               attrs: {
                 to: {
-                  name: "viewgrades",
-                  params: { student_lrn: this.input.student_lrn }
+                  name: "managestudentgrades",
+                  params: {
+                    student_lrn: _vm.input.student_lrn,
+                    student_year: _vm.schoolYr,
+                    subject_code: _vm.input.subj_code
+                  }
                 }
               }
             },
@@ -68007,14 +68291,34 @@ var render = function() {
       _c(
         "tbody",
         _vm._l(_vm.fetchedSubjectInfo, function(singleSubject) {
-          return _c("tr", { key: singleSubject.id }, [
+          return _c("tr", { key: singleSubject.subj_code }, [
             _c("td", { attrs: { scope: "row" } }, [
               _vm._v(" " + _vm._s(singleSubject.subj_name) + " ")
             ]),
             _vm._v(" "),
-            _c("td", [_vm._v("00")]),
-            _vm._v(" "),
-            _c("td", [_vm._v("View Grades")])
+            _c(
+              "td",
+              [
+                _c(
+                  "router-link",
+                  {
+                    staticClass: "btn btn-primary",
+                    attrs: {
+                      to: {
+                        name: "managestudentgrades",
+                        params: {
+                          student_lrn: _vm.student_info.student_lrn,
+                          student_year: _vm.student_info.student_yr_no_filter,
+                          subject_code: singleSubject.subj_code
+                        }
+                      }
+                    }
+                  },
+                  [_vm._v(" View Grades ")]
+                )
+              ],
+              1
+            )
           ])
         }),
         0
@@ -68030,8 +68334,6 @@ var staticRenderFns = [
     return _c("thead", [
       _c("tr", [
         _c("th", [_vm._v("Subject")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Grade")]),
         _vm._v(" "),
         _c("th", [_vm._v("Option")])
       ])
@@ -68617,6 +68919,47 @@ var render = function() {
             : _vm._e()
         ]),
         _vm._v(" "),
+        _c("div", { staticClass: "col-sm-12 col-md-12 col-lg-12 mb-2" }, [
+          _c("label", { attrs: { for: "" } }, [_vm._v("Default Critea Grade")]),
+          _vm._v(" "),
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.criteasToUpdate.defaultCriteaGrade,
+                expression: "criteasToUpdate.defaultCriteaGrade"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { type: "text" },
+            domProps: { value: _vm.criteasToUpdate.defaultCriteaGrade },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(
+                  _vm.criteasToUpdate,
+                  "defaultCriteaGrade",
+                  $event.target.value
+                )
+              }
+            }
+          }),
+          _vm._v(" "),
+          _vm.updateMsg.defaultCriteaGrade
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(
+                      _vm._f("trimCharacters")(_vm.updateMsg.defaultCriteaGrade)
+                    )
+                )
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
         _c("div", { staticClass: "col-md-12 col-lg-12 mt-5" }, [
           _c(
             "button",
@@ -68744,6 +69087,47 @@ var render = function() {
                   " " +
                     _vm._s(
                       _vm._f("trimCharacters")(_vm.insertMsg.criteaPercentage)
+                    )
+                )
+              ])
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col-sm-12 col-md-12 col-lg-12 mb-2" }, [
+          _c("label", { attrs: { for: "" } }, [_vm._v("Default Critea Grade")]),
+          _vm._v(" "),
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.criteaInfo.defaultCriteaGrade,
+                expression: "criteaInfo.defaultCriteaGrade"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { type: "text" },
+            domProps: { value: _vm.criteaInfo.defaultCriteaGrade },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(
+                  _vm.criteaInfo,
+                  "defaultCriteaGrade",
+                  $event.target.value
+                )
+              }
+            }
+          }),
+          _vm._v(" "),
+          _vm.insertMsg.defaultCriteaGrade
+            ? _c("span", { staticClass: "error" }, [
+                _vm._v(
+                  " " +
+                    _vm._s(
+                      _vm._f("trimCharacters")(_vm.insertMsg.defaultCriteaGrade)
                     )
                 )
               ])
@@ -69585,6 +69969,8 @@ var render = function() {
     _vm._v(" "),
     _c("br"),
     _vm._v(" "),
+    _c("hr"),
+    _vm._v(" "),
     _c("div", { staticClass: "row" }, [
       _c("h4", [_vm._v(" Critea ")]),
       _vm._v(" "),
@@ -69602,8 +69988,16 @@ var render = function() {
               ]),
               _vm._v(" "),
               _c("td", [
-                _vm._v(" " + _vm._s(getCriteaRecords.percentage) + " ")
+                _vm._v(
+                  " " +
+                    _vm._s(
+                      _vm._f("putPercentage")(getCriteaRecords.percentage)
+                    ) +
+                    " "
+                )
               ]),
+              _vm._v(" "),
+              _c("td", [_vm._v(" " + _vm._s(getCriteaRecords.defaultGrade))]),
               _vm._v(" "),
               _c("td", [
                 _c(
@@ -69648,7 +70042,9 @@ var render = function() {
             _vm._m(2),
             _vm._v(" "),
             _c("td", { attrs: { colspan: "3" } }, [
-              _c("b", [_vm._v(_vm._s(_vm.totalPercentage))])
+              _c("b", [
+                _vm._v(_vm._s(_vm._f("putPercentage")(_vm.totalPercentage)))
+              ])
             ])
           ])
         ])
@@ -69756,6 +70152,8 @@ var staticRenderFns = [
         _c("th", [_vm._v("Critea Name")]),
         _vm._v(" "),
         _c("th", [_vm._v("Percentage")]),
+        _vm._v(" "),
+        _c("th", [_vm._v("Default Grade")]),
         _vm._v(" "),
         _c("th", { attrs: { colspan: "2" } }, [_vm._v("Options")])
       ])
@@ -85495,7 +85893,9 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Quiz_vue_vue_type_template_id_445000fa_scoped_true___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Quiz.vue?vue&type=template&id=445000fa&scoped=true& */ "./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=template&id=445000fa&scoped=true&");
 /* harmony import */ var _Quiz_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Quiz.vue?vue&type=script&lang=js& */ "./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _Quiz_vue_vue_type_style_index_0_id_445000fa_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css& */ "./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
 
 
 
@@ -85503,7 +85903,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* normalize component */
 
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__["default"])(
   _Quiz_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
   _Quiz_vue_vue_type_template_id_445000fa_scoped_true___WEBPACK_IMPORTED_MODULE_0__["render"],
   _Quiz_vue_vue_type_template_id_445000fa_scoped_true___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
@@ -85532,6 +85932,22 @@ component.options.__file = "resources/js/components/Layouts/ManageStudentGrades/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/babel-loader/lib??ref--4-0!../../../../../node_modules/vue-loader/lib??vue-loader-options!./Quiz.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css&":
+/*!*******************************************************************************************************************************!*\
+  !*** ./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css& ***!
+  \*******************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_style_index_0_id_445000fa_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../../node_modules/style-loader!../../../../../node_modules/css-loader??ref--6-1!../../../../../node_modules/vue-loader/lib/loaders/stylePostLoader.js!../../../../../node_modules/postcss-loader/src??ref--6-2!../../../../../node_modules/vue-loader/lib??vue-loader-options!./Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css& */ "./node_modules/style-loader/index.js!./node_modules/css-loader/index.js?!./node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Layouts/ManageStudentGrades/Quiz.vue?vue&type=style&index=0&id=445000fa&scoped=true&lang=css&");
+/* harmony import */ var _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_style_index_0_id_445000fa_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_style_index_0_id_445000fa_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__);
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_style_index_0_id_445000fa_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_style_index_0_id_445000fa_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_style_loader_index_js_node_modules_css_loader_index_js_ref_6_1_node_modules_vue_loader_lib_loaders_stylePostLoader_js_node_modules_postcss_loader_src_index_js_ref_6_2_node_modules_vue_loader_lib_index_js_vue_loader_options_Quiz_vue_vue_type_style_index_0_id_445000fa_scoped_true_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
@@ -86466,33 +86882,33 @@ __webpack_require__.r(__webpack_exports__);
   name: 'managestudentsubjectgrades',
   component: _components_Layouts_ManageSubjects_ManageStudentSubjectGrades__WEBPACK_IMPORTED_MODULE_14__["default"]
 }, {
-  path: '/viewgrades/:student_lrn',
-  name: 'viewgrades',
-  component: _components_Layouts_ManageStudentGrades_AllCritea_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
-}, {
-  path: '/viewgrades/:student_lrn/exam/',
+  path: '/viewgrades/:student_lrn/:student_year/:subject_code/exam',
   name: 'exam',
   component: _components_Layouts_ManageStudentGrades_Exam_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
 }, {
-  path: '/viewgrades/:student_lrn/assignment/',
+  path: '/viewgrades/:student_lrn/:student_year/:subject_code/assignment/',
   name: 'assignment',
   component: _components_Layouts_ManageStudentGrades_Assignments_vue__WEBPACK_IMPORTED_MODULE_6__["default"]
 }, {
-  path: '/viewgrades/:student_lrn/project/',
+  path: '/viewgrades/:student_lrn/:student_year/:subject_code/project/',
   name: 'project',
   component: _components_Layouts_ManageStudentGrades_Projects_vue__WEBPACK_IMPORTED_MODULE_7__["default"]
 }, {
-  path: '/viewgrades/:student_lrn/quiz/',
+  path: '/viewgrades/:student_lrn/:student_year/:subject_code/quiz/',
   name: 'quiz',
   component: _components_Layouts_ManageStudentGrades_Quiz_vue__WEBPACK_IMPORTED_MODULE_8__["default"]
 }, {
-  path: '/viewgrades/:student_lrn/recitation/',
+  path: '/viewgrades/:student_lrn/:student_year/:subject_code/recitation',
   name: 'recitation',
   component: _components_Layouts_ManageStudentGrades_Recitation_vue__WEBPACK_IMPORTED_MODULE_9__["default"]
 }, {
   path: '/viewstudent/:student_lrn',
   name: 'viewstudent',
   component: _components_Layouts_ManageStudentInfo_ViewStudentInfo_vue__WEBPACK_IMPORTED_MODULE_10__["default"]
+}, {
+  path: '/managestudentgrades/:student_lrn/:student_year/:subject_code',
+  name: 'managestudentgrades',
+  component: _components_Layouts_ManageStudentGrades_AllCritea_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
 }]);
 
 /***/ }),

@@ -31,12 +31,12 @@ Route::resources([
 ]);
 
 Route::get('summaryofstudents', 'StudentInfoController\SummaryOfStudentsController@getTheSummary');
-Route::get('fetchexams/{student_lrn}', 'CriteasController\CtrlStudentExam@fetchExamRecordByStudentId');
-Route::get('fetchassignments/{student_lrn}', 'CriteasController\CtrlStudentAssignment@fetchAssignmentRecordByStudentId');
+Route::get('fetchexams/{student_lrn}/{subject_code}', 'CriteasController\CtrlStudentExam@fetchExamRecordByStudentId');
+Route::get('fetchassignments/{student_lrn}/{subject_code}', 'CriteasController\CtrlStudentAssignment@fetchAssignmentRecordByStudentId');
 Route::get('fetchprojects/{student_lrn}', 'CriteasController\CtrlStudentProject@fetchProjectRecordByStudentId');
 Route::get('fetchquiz/{student_lrn}', 'CriteasController\CtrlStudentQuiz@fetchQuizRecordByStudentId');
-Route::get('fetchrecitation/{student_lrn}', 'CriteasController\CtrlStudentRecitation@fetchRecitationRecordByStudentId');
-Route::get('fetchStudentRecords/{student_lrn}', 'CriteasController\CtrlGradeCritea@fetchAllStudentRecords');
+Route::get('fetchrecitation/{student_lrn}/{subject_code}', 'CriteasController\CtrlStudentRecitation@fetchRecitationRecordByStudentId');
+Route::get('fetchStudentRecords/{student_lrn}/{subject_code}', 'CriteasController\CtrlGradeCritea@fetchAllStudentRecords');
 Route::get('fetchStudentYearInLRN', 'StudentInfoController\CtrlStudentInformation@yearOptions');
 Route::get('fetchStudentSection', 'StudentInfoController\CtrlStudentInformation@sectionOptions');
 Route::get('fetchStudentsBaseInYearLRN/{year}/{section}', 'StudentInfoController\CtrlStudentInformation@fetchStudentsByYearInLRN');

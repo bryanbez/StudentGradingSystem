@@ -4,6 +4,7 @@
         <h3>Settings</h3>
         <br />
 
+            <hr />
         <div class="row">
             <h4> Critea </h4>
             
@@ -16,13 +17,15 @@
                     <tr>
                         <th>Critea Name</th>
                         <th>Percentage</th>
+                        <th>Default Grade</th>
                         <th colspan="2">Options</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="getCriteaRecords in fetchCriteaInfos" :key="getCriteaRecords.id">
                         <td scope="row">{{ getCriteaRecords.critea }}</td>
-                        <td> {{ getCriteaRecords.percentage }} </td>
+                        <td> {{ getCriteaRecords.percentage | putPercentage }} </td>
+                        <td> {{ getCriteaRecords.defaultGrade }}</td>
                         <td><button class="btn btn-primary" @click="editCritea(getCriteaRecords.id)" data-toggle="modal" data-target="#updateCritea">Edit</button></td>
                         <td><button class="btn btn-danger" @click="deleteCritea(getCriteaRecords.id)">Delete</button></td>
                     </tr>
@@ -30,7 +33,7 @@
                 <tfoot>
                     <tr>
                         <td><b>Total Percentage: </b></td>
-                        <td colspan="3"><b>{{ totalPercentage }}</b></td>
+                        <td colspan="3"><b>{{ totalPercentage | putPercentage }}</b></td>
                     </tr>
                 </tfoot>
             </table>
@@ -129,6 +132,11 @@ export default {
         },
         resetToEditData() {
             this.showModal = false;
+        }
+    },
+    filters: {
+        putPercentage(value) {
+            return value + '%';
         }
     }
 

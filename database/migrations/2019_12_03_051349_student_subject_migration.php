@@ -23,6 +23,6 @@ class StudentSubjectMigration extends Migration
      */
     public function down()
     {
-      Schema::drop('tblstudentSubject');
+     
     }
 }

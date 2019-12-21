@@ -16,6 +16,7 @@ class ManageCriteaModel extends Model
             $storeCritea = new ManageCriteaModel;
             $storeCritea->critea = $request->criteaName;
             $storeCritea->percentage = $request->criteaPercentage;
+            $storeCritea->defaultGrade = $request->defaultCriteaGrade;
             $storeCritea->save();
             return 'Critea Information Successfully Inserted';
         } catch (Exception $e) {
@@ -24,11 +25,11 @@ class ManageCriteaModel extends Model
     }
 
     public function showCriteasRecords() {
-        $allCritea = DB::select('select id, critea, percentage from tblgradecritea');
+        $allCritea = DB::select('select id, critea, percentage, defaultGrade from tblgradecritea');
         $sumAllCriteaPercentage = DB::select('select SUM(percentage) AS total_percentage from tblgradecritea');
         $tojson = [
             'totalPercentage' => $sumAllCriteaPercentage,
-            'criteasRecord' => $allCritea
+            'criteasRecord' => $allCritea,
         ];
 
         return $tojson;
@@ -45,6 +46,7 @@ class ManageCriteaModel extends Model
             $updateCriteaRecord = ManageCriteaModel::where('id', $id)->update([
                 'critea' => $request->textcriteaName,
                 'percentage' => $request->textcriteaPercentage,
+                'defaultGrade' => $request->defaultCriteaGrade
             ]);
             return response()->json('Critea Record Successfully Updated');    
 

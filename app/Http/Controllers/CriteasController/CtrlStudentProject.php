@@ -44,9 +44,11 @@ class CtrlStudentProject extends Controller
 
     public function store(Request $request)
     {
+     
         try {
             $saveProject = new ProjModel;
             $saveProject->student_lrn = $request->student_lrn;
+            $saveProject->subj_code = $request->subj_code;
             $saveProject->date_of_project = $request->dateOfProject;
             $saveProject->grade = $request->grade;
             $saveProject->save();
