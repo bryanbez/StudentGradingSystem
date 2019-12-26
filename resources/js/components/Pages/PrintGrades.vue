@@ -5,14 +5,14 @@
         <br />
 
         <div class="row">
-            <div class="col-sm-12 col-md-6 col-lg-6">
+            <div class="col-sm-12 col-md-12 col-lg-12">
 
                 <h5> Print By Year And Section </h5> 
        
                 <table>
                     <tr>
                         <td>
-                            <select v-model="sltLrnYear" class="form-control">
+                            <select v-model="sltLrnYear" class="form-control" @change="showSubjectInSpecificYear()">
                                 <option value="" disabled selected>Select Year</option>
                                 <option v-for="fetchYear in studentYear" :key="fetchYear.Year"> {{ fetchYear.Year }}</option>
                             </select>
@@ -21,6 +21,12 @@
                             <select v-model="sltLrnSection" class="form-control">
                                 <option value="" disabled selected>Select Section</option>
                                 <option v-for="fetchSection in studentSection" :key="fetchSection.section"> {{ fetchSection.section }}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select v-model="sltSubject" class="form-control">
+                                <option value="" disabled selected>Select Subject</option>
+                                <option v-for="fetchSubject in fetchedSubjectInfo" :key="fetchSubject.subj_name"> {{ fetchSubject.subj_name }}</option>
                             </select>
                         </td>
                         <td>
@@ -70,11 +76,12 @@ export default {
             sltLrnYear: '',
             sltLrnSection: '',
             output: null,
-            arrayOfData: []
+            arrayOfData: [],
+            sltSubject: '',
+            fetchedSubjectInfo: []
         }
     },
     created() {
-
         axios.get('http://localhost:8000/api/fetchStudentYearInLRN')
              .then(response => {
                  console.log(response)
@@ -84,14 +91,14 @@ export default {
              .then(response => {
                  console.log(response)
                  this.studentSection = response.data;
-        });  
+        }); 
     },
     methods: {
        printList() {
-        axios.get(`http://127.0.0.1:8000/api/printGrades/${this.sltLrnYear}/${this.sltLrnSection}`)
+        axios.get(`http://127.0.0.1:8000/api/printGrades/${this.sltLrnYear}/${this.sltLrnSection}/${this.sltSubject}`)
             .then(response => {
             console.log(response.data)
-              this.arrayOfData = [];
+            this.arrayOfData = [];
           
             for(let i = 0; i < response.data.length; i++) {
                 
@@ -114,12 +121,30 @@ export default {
         });
           
        },
+       showSubjectInSpecificYear() {
+            axios.get('http://localhost:8000/api/showSubjectInYear/'+this.yearFilter(this.sltLrnYear)).then(
+                response => {
+                    this.fetchedSubjectInfo = response.data;      
+            });
+       },
        print() {
            this.$htmlToPaper('printRecord', () => {
                console.log('Print Na');
            });
-       }
-    }
+       },
+        yearFilter(studentYear) {
+            if (studentYear == 1) {
+                return '1st'
+            } else if(studentYear == 2) {
+                return '2nd'
+            } else if(studentYear == 3) {
+                return '3rd'
+            } else if(studentYear == 4) {
+                return '4th'
+            }
+        },   
+    },
+    
     
 }
 </script>

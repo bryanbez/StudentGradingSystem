@@ -46,7 +46,7 @@
                             </tr>
                             <tr>
                                 <td> Quiz Grade:  </td>
-                                <td colspan="4"> {{ quizResults.equivalent }} ({{ quizResults.quiz_count }} of {{ quizResults.max_quiz_number}} quiz taken) </td>
+                                <td colspan="4"> {{ quizResults.finalGrade }} ({{ quizResults.quiz_count }} of {{ quizResults.max_quiz_number}} quiz taken) </td>
                             </tr>
                         </table>
                     </div>
@@ -148,8 +148,7 @@ export default {
             this.input.score = '';
        },
        refreshList() {
-               axios.get(`http://localhost:8000/api/fetchquiz/${this.input.student_lrn}`).then(
-                
+               axios.get(`http://localhost:8000/api/fetchquiz/${this.input.student_lrn}/${this.input.subj_code}`).then(
                 response =>  {
                        console.log(response);
                     if (response.data.quizzez.length == 0) {

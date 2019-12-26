@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\CriteasModel\StudProjectModel as ProjModel;
-
+use App\Models\CriteasModel\GradeCriteaModel;
 use DB;
 
 class CtrlStudentProject extends Controller
@@ -16,23 +16,28 @@ class CtrlStudentProject extends Controller
         //
     }
 
-    public function fetchProjectRecordByStudentId($student_lrn) {
-        $fetchAllProjectRecord = ProjModel::where('student_lrn', $student_lrn)->get();
+    public function fetchProjectRecordByStudentId($student_lrn, $subject_code) {
+        $fetchAllProjectRecord = ProjModel::where('student_lrn', $student_lrn)
+                                            ->where('subj_code', $subject_code)->get();
 
-        $projectResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS project_count, 
-        (SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_project_number,
-        (CASE WHEN COUNT(student_lrn) < (SELECT COUNT(student_lrn) FROM tblProjects GROUP BY student_lrn LIMIT 1) 
-         THEN (((SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) 
-            - (SELECT COUNT(student_lrn) FROM tblProjects WHERE student_lrn=$student_lrn))
-          * 65 + (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn)) 
-          /  (SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1)
-        /* LOWER */
-         ELSE (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn) / (SELECT COUNT(student_lrn) AS project_count FROM tblProjects WHERE student_lrn=$student_lrn)
-         END) AS equivalent   
-        FROM tblProjects WHERE student_lrn=$student_lrn GROUP BY student_lrn");
+        $gradeCritea = new GradeCriteaModel();
+
+        $projectRecord = $gradeCritea->calculateProjectRecords($student_lrn, $subject_code);
+
+        // $projectResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS project_count, 
+        // (SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_project_number,
+        // (CASE WHEN COUNT(student_lrn) < (SELECT COUNT(student_lrn) FROM tblProjects GROUP BY student_lrn LIMIT 1) 
+        //  THEN (((SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) 
+        //     - (SELECT COUNT(student_lrn) FROM tblProjects WHERE student_lrn=$student_lrn))
+        //   * 65 + (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn)) 
+        //   /  (SELECT COUNT(student_lrn) AS project_count FROM tblProjects GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1)
+        // /* LOWER */
+        //  ELSE (SELECT SUM(grade) FROM tblProjects WHERE student_lrn=$student_lrn) / (SELECT COUNT(student_lrn) AS project_count FROM tblProjects WHERE student_lrn=$student_lrn)
+        //  END) AS equivalent   
+        // FROM tblProjects WHERE student_lrn=$student_lrn GROUP BY student_lrn");
 
        return response()->json([
-            'projectData' => $projectResult,
+            'projectData' => $projectRecord,
             'projectRecords' => $fetchAllProjectRecord
         ]);
     }

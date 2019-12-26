@@ -18,30 +18,14 @@ class CtrlStudentRecitation extends Controller
 
     public function fetchRecitationRecordByStudentId($student_lrn, $subject_code) 
     {
-        $fetchAllRecitationRecord = RecitationModel::where('student_lrn', $student_lrn)->get();
-
-        $recitationResult = DB::select("SELECT student_lrn, SUM(points) AS recitation_count,
-        CASE WHEN SUM(points) >= 10 THEN '100' 
-                WHEN (SUM(points) >= 7 AND SUM(points) <= 9) THEN '90' 
-                WHEN (SUM(points) >= 4 AND SUM(points) <= 6) THEN '85' 
-                WHEN (SUM(points) >= 2 AND SUM(points) <= 3) THEN '80' 
-                WHEN SUM(points) = 1 THEN '75' 
-                ELSE '65' 
-        END AS equivalent   
-        FROM tblRecitation WHERE student_lrn=$student_lrn AND subj_code='$subject_code' GROUP BY student_lrn");
-
-        if($fetchAllRecitationRecord->isEmpty()) {
-            $noResult = new GradeCriteaModel();
-            return [
-                'overAllRecitationResult' => $noResult->returnNoResult($student_lrn, 'recitation_count', 'Recitation', $subject_code)
-            ];
-        }
-        else {
-            return response()->json([
-                'overAllRecitationResult' => $recitationResult,
-                'recitationRecords' => $fetchAllRecitationRecord
-             ]);
-        }
+        $fetchAllRecitationRecord = RecitationModel::where('student_lrn', $student_lrn)->where('subj_code', $subject_code)->get();
+        $gradeCritea = new GradeCriteaModel();
+        $recitationResult = $gradeCritea->calculateRecitationRecords($student_lrn, $subject_code);
+        
+        return response()->json([
+            'overAllRecitationResult' => $recitationResult,
+            'recitationRecords' => $fetchAllRecitationRecord
+         ]);
         
     }
 

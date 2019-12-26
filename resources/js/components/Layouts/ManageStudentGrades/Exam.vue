@@ -52,7 +52,7 @@
                         </tr>
                         <tr>
                             <td> Exam Final Average: </td>
-                            <td colspan="3"> {{ overAllExamResult.equivalent }}  </td>
+                            <td colspan="3"> {{ overAllExamResult.finalGrade }}  </td>
                       
                         </tr>
                     </table>

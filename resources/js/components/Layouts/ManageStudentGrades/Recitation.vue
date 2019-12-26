@@ -46,7 +46,7 @@
                         </tr>
                         <tr>
                             <td> Final Grade: </td>
-                            <td colspan="3">{{ overAllRecitationRecord.equivalent }}</td>
+                            <td colspan="3">{{ overAllRecitationRecord.finalGrade }}</td>
                         </tr>
                     </table>
 
@@ -143,7 +143,7 @@ export default {
             axios.get(`http://localhost:8000/api/fetchrecitation/${this.input.student_lrn}/${this.input.subj_code}`).then(
                 response => {
                     console.log(response)
-                    if (response.data.overAllRecitationResult.length == 0) {
+                    if (response.data.recitationRecords.length == 0) {
                         this.recitationRecords = null;
                     }
                     else {

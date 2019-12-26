@@ -47,7 +47,7 @@
                             </tr>
                             <tr>
                                 <td>Final Grade in Assignment</td>
-                                <td> {{ assignmentResult.equivalent }} ({{ assignmentResult.assignment_count }} of {{ assignmentResult.max_assignment_number}} assignment passed) </td>
+                                <td> {{ assignmentResult.finalGrade }} ({{ assignmentResult.assignment_count }} of {{ assignmentResult.max_assignment_number}} assignment passed) </td>
                             </tr>
                         </table>
 

@@ -5,9 +5,8 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Models\CriteasModel\StudQuizModel as QuizModel;
-use App\Http\Resources\QuizResources;
 use App\Http\Resources\calculationRecords;
-
+use App\Models\CriteasModel\GradeCriteaModel;
 use DB;
 
 class CtrlStudentQuiz extends Controller
@@ -18,20 +17,11 @@ class CtrlStudentQuiz extends Controller
          
     }
 
-    public function fetchQuizRecordByStudentId($student_lrn) 
+    public function fetchQuizRecordByStudentId($student_lrn, $subject_code) 
     {
-
-        $fetchAllQuizRecord = QuizModel::where('student_lrn', $student_lrn)->get();
-
-        $quizResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS quiz_count, 
-                         (SELECT COUNT(student_lrn) AS quiz_count FROM tblQuiz GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_quiz_number,
-                         (CASE WHEN COUNT(student_lrn) < (SELECT COUNT(student_lrn) FROM tblQuiz GROUP BY student_lrn LIMIT 1) 
-                          THEN (SUM(score) * 100) / (SELECT SUM(no_of_items) FROM tblQuiz GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) /* LOWER */
-                          ELSE (SUM(score) * 100) / SUM(no_of_items)
-                          END) AS equivalent,
-                          (SELECT SUM(no_of_items) FROM tblQuiz GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) as max_quiz_no_of_items
-                         FROM tblQuiz WHERE student_lrn=$student_lrn GROUP BY student_lrn");
-        
+        $fetchAllQuizRecord = QuizModel::where('student_lrn', $student_lrn)->where('subj_code', $subject_code)->get();
+        $gradeCritea = new GradeCriteaModel();
+        $quizResult = $gradeCritea->calculateQuizRecords($student_lrn, $subject_code);
 
         return response()->json([
             'overallData' => $quizResult,

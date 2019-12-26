@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CriteasModel\StudAssignmentModel as AssignmentModel;
 use App\Http\Resources\StudentAssignmentResources;
+use App\Models\CriteasModel\GradeCriteaModel;
 use DB;
 
 class CtrlStudentAssignment extends Controller
@@ -16,22 +17,11 @@ class CtrlStudentAssignment extends Controller
         //
     }
 
-    public function fetchAssignmentRecordByStudentId($student_lrn)
+    public function fetchAssignmentRecordByStudentId($student_lrn, $subject_code)
     {
-        $fetchAllAssignmentRecord = AssignmentModel::where('student_lrn', $student_lrn)->get();
-       
-        $assignmentResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS assignment_count, 
-        (SELECT COUNT(student_lrn) AS assignment_count FROM tblAssignment GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_assignment_number,
-        (CASE WHEN COUNT(student_lrn) < (SELECT COUNT(student_lrn) FROM tblAssignment GROUP BY student_lrn LIMIT 1) 
-         THEN (((SELECT COUNT(student_lrn) AS assignment_count FROM tblAssignment GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) 
-            - (SELECT COUNT(student_lrn) FROM tblAssignment WHERE student_lrn=$student_lrn))
-          * 65 + (SELECT SUM(grade) FROM tblAssignment WHERE student_lrn=$student_lrn)) 
-          /  (SELECT COUNT(student_lrn) AS assignment_count FROM tblAssignment GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1)
-        /* LOWER */
-         ELSE (SELECT SUM(grade) FROM tblAssignment WHERE student_lrn=$student_lrn) / (SELECT COUNT(student_lrn) AS assignment_count FROM tblAssignment WHERE student_lrn=$student_lrn)
-         END) AS equivalent   
-        FROM tblAssignment WHERE student_lrn=$student_lrn GROUP BY student_lrn");
-
+        $fetchAllAssignmentRecord = AssignmentModel::where('student_lrn', $student_lrn)->where('subj_code', $subject_code)->get();
+        $gradeCritea = new GradeCriteaModel();
+        $assignmentResult = $gradeCritea->calculateAssignmentRecords($student_lrn, $subject_code);
         return response()->json([
             'overallData' => $assignmentResult,
             'assignments' => $fetchAllAssignmentRecord
@@ -49,6 +39,7 @@ class CtrlStudentAssignment extends Controller
             $saveAssignment = new AssignmentModel;
             $saveAssignment->student_lrn = $request->student_lrn;
             $saveAssignment->date_of_assignment = $request->dateOfAssignment;
+            $saveAssignment->subj_code = $request->subj_code;
             $saveAssignment->grade = $request->grade;
             $saveAssignment->save();
 

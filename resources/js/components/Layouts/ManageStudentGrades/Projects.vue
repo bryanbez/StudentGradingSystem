@@ -49,7 +49,7 @@
                             </tr>
                             <tr>
                                 <td> Final Grade: </td>
-                                <td colspan="3">{{ projectData.equivalent }}</td>
+                                <td colspan="3">{{ projectData.finalGrade }}</td>
                             </tr>
                         </table>
 
@@ -150,10 +150,10 @@ export default {
             }
        },
        refreshList() {
-            axios.get(`http://localhost:8000/api/fetchprojects/${this.input.student_lrn}`).then(
+            axios.get(`http://localhost:8000/api/fetchprojects/${this.input.student_lrn}/${this.input.subj_code}`).then(
             response => {
                     console.log(response.data)
-                if (response.data.projectData.length == 0) {
+                if (response.data.projectRecords.length == 0) {
                     this.projectRecords = null;
                 }
                 else {

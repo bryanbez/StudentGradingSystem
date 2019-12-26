@@ -19,32 +19,36 @@ class CtrlStudentExam extends Controller
 
     public function fetchExamRecordByStudentId($student_lrn, $subject_code)
     {
+        $gradeCritea = new GradeCriteaModel();
+
         $fetchAllExamRecord = DB::select("SELECT * FROM tblExam WHERE student_lrn=$student_lrn AND subj_code='$subject_code'");
 
-        $examResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS exam_count, 
-        (SELECT COUNT(student_lrn) AS exam_count FROM tblExam GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_exam_number,
-        (CASE WHEN COUNT(student_lrn) < (SELECT COUNT(student_lrn) FROM tblExam GROUP BY student_lrn LIMIT 1) 
-         THEN ((((SELECT COUNT(student_lrn) FROM tblExam GROUP BY student_lrn LIMIT 1) - (SELECT COUNT(student_lrn) FROM tblExam WHERE student_lrn=$student_lrn)) 
-        * 65) + (((SELECT SUM(score) FROM tblExam WHERE student_lrn=$student_lrn) * 100) / (SELECT SUM(no_of_items) FROM tblExam WHERE student_lrn=$student_lrn))) 
-        / (SELECT COUNT(student_lrn) FROM tblExam GROUP BY student_lrn LIMIT 1) /* LOWER */
-         ELSE ((SELECT SUM(score) FROM tblExam WHERE student_lrn=$student_lrn) * 100) / (SELECT SUM(no_of_items) FROM tblExam WHERE student_lrn=$student_lrn)
-         END) AS equivalent   
-        FROM tblExam WHERE student_lrn=$student_lrn AND subj_code='$subject_code' GROUP BY student_lrn");
+        // $examResult = DB::select("SELECT student_lrn, COUNT(student_lrn) AS exam_count, 
+        // (SELECT COUNT(student_lrn) AS exam_count FROM tblExam GROUP BY student_lrn ORDER BY COUNT(student_lrn) DESC LIMIT 1) AS max_exam_number,
+        // (CASE WHEN COUNT(student_lrn) < (SELECT COUNT(student_lrn) FROM tblExam GROUP BY student_lrn LIMIT 1) 
+        //  THEN ((((SELECT COUNT(student_lrn) FROM tblExam GROUP BY student_lrn LIMIT 1) - (SELECT COUNT(student_lrn) FROM tblExam WHERE student_lrn=$student_lrn)) 
+        // * 65) + (((SELECT SUM(score) FROM tblExam WHERE student_lrn=$student_lrn) * 100) / (SELECT SUM(no_of_items) FROM tblExam WHERE student_lrn=$student_lrn))) 
+        // / (SELECT COUNT(student_lrn) FROM tblExam GROUP BY student_lrn LIMIT 1) /* LOWER */
+        //  ELSE ((SELECT SUM(score) FROM tblExam WHERE student_lrn=$student_lrn) * 100) / (SELECT SUM(no_of_items) FROM tblExam WHERE student_lrn=$student_lrn)
+        //  END) AS equivalent   
+        // FROM tblExam WHERE student_lrn=$student_lrn AND subj_code='$subject_code' GROUP BY student_lrn");
+
+        $examRecord = $gradeCritea->calculateExamRecords($student_lrn, $subject_code);
 
         if($fetchAllExamRecord == []) {
-            $noResult = new GradeCriteaModel();
+          
             return [
-                'overallExamData' => $noResult->returnNoResult($student_lrn, 'exam_count', 'Exam', $subject_code),
+                'overallExamData' => $gradeCritea->returnNoResult($student_lrn, 'exam_count', 'Exam', $subject_code),
                 'exams' => 'empty'
             ];
         }
         else {
             return response()->json([
-                'overallExamData' => $examResult,
+                'overallExamData' => $examRecord,
                 'exams' => $fetchAllExamRecord
             ]);
         }
-       //return response()->json($fetchAllExamRecord);
+
     }
 
 

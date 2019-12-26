@@ -8,10 +8,10 @@ use App\Models\StudentInfosModel\PrintGradesOfStudentModel as TblStudInfoModel;
 
 class PrintGradesOfStudentController extends Controller
 {
-    public function index($year, $section) {
+    public function index($year, $section, $subject) {
 
         $getAll = new TblStudInfoModel();
-        return response()->json($getAll->getAllStudentGradesBasedOnYearAndSection($year, $section));
+        return response()->json($getAll->getAllStudentGradesBasedOnYearAndSection($year, $section, $subject));
         
     }
 }

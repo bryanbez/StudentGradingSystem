@@ -2179,11 +2179,13 @@ __webpack_require__.r(__webpack_exports__);
       _this.projectRecords = response.data.projectRecords[0];
       _this.quizRecords = response.data.quizRecords[0];
       _this.recitationRecords = response.data.recitationRecords[0];
+      console.log(response.data.examRecords[0]);
     });
   },
   computed: {
     calculateFinalGrade: function calculateFinalGrade() {
-      var finalGrade = parseInt(this.examRecords.equivalent) + parseInt(this.assignmentRecords.equivalent) + parseInt(this.projectRecords.equivalent) + parseInt(this.quizRecords.equivalent) + parseInt(this.recitationRecords.equivalent);
+      var finalGrade = parseFloat(this.examRecords.equivalent) + parseFloat(this.assignmentRecords.equivalent) + parseFloat(this.projectRecords.equivalent) + parseFloat(this.quizRecords.equivalent) + parseFloat(this.recitationRecords.equivalent);
+      console.log(finalGrade);
       return finalGrade;
     }
   },
@@ -2735,10 +2737,10 @@ __webpack_require__.r(__webpack_exports__);
     refreshList: function refreshList() {
       var _this5 = this;
 
-      axios.get("http://localhost:8000/api/fetchprojects/".concat(this.input.student_lrn)).then(function (response) {
+      axios.get("http://localhost:8000/api/fetchprojects/".concat(this.input.student_lrn, "/").concat(this.input.subj_code)).then(function (response) {
         console.log(response.data);
 
-        if (response.data.projectData.length == 0) {
+        if (response.data.projectRecords.length == 0) {
           _this5.projectRecords = null;
         } else {
           _this5.projectRecords = response.data.projectRecords;
@@ -2913,7 +2915,7 @@ __webpack_require__.r(__webpack_exports__);
     refreshList: function refreshList() {
       var _this5 = this;
 
-      axios.get("http://localhost:8000/api/fetchquiz/".concat(this.input.student_lrn)).then(function (response) {
+      axios.get("http://localhost:8000/api/fetchquiz/".concat(this.input.student_lrn, "/").concat(this.input.subj_code)).then(function (response) {
         console.log(response);
 
         if (response.data.quizzez.length == 0) {
@@ -3088,7 +3090,7 @@ __webpack_require__.r(__webpack_exports__);
       axios.get("http://localhost:8000/api/fetchrecitation/".concat(this.input.student_lrn, "/").concat(this.input.subj_code)).then(function (response) {
         console.log(response);
 
-        if (response.data.overAllRecitationResult.length == 0) {
+        if (response.data.recitationRecords.length == 0) {
           _this5.recitationRecords = null;
         } else {
           _this5.recitationRecords = response.data.recitationRecords;
@@ -3423,6 +3425,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
 //
 //
 //
@@ -4487,6 +4491,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -4495,7 +4505,9 @@ __webpack_require__.r(__webpack_exports__);
       sltLrnYear: '',
       sltLrnSection: '',
       output: null,
-      arrayOfData: []
+      arrayOfData: [],
+      sltSubject: '',
+      fetchedSubjectInfo: []
     };
   },
   created: function created() {
@@ -4514,7 +4526,7 @@ __webpack_require__.r(__webpack_exports__);
     printList: function printList() {
       var _this2 = this;
 
-      axios.get("http://127.0.0.1:8000/api/printGrades/".concat(this.sltLrnYear, "/").concat(this.sltLrnSection)).then(function (response) {
+      axios.get("http://127.0.0.1:8000/api/printGrades/".concat(this.sltLrnYear, "/").concat(this.sltLrnSection, "/").concat(this.sltSubject)).then(function (response) {
         console.log(response.data);
         _this2.arrayOfData = [];
 
@@ -4532,10 +4544,28 @@ __webpack_require__.r(__webpack_exports__);
         console.log(_this2.arrayOfData);
       });
     },
+    showSubjectInSpecificYear: function showSubjectInSpecificYear() {
+      var _this3 = this;
+
+      axios.get('http://localhost:8000/api/showSubjectInYear/' + this.yearFilter(this.sltLrnYear)).then(function (response) {
+        _this3.fetchedSubjectInfo = response.data;
+      });
+    },
     print: function print() {
       this.$htmlToPaper('printRecord', function () {
         console.log('Print Na');
       });
+    },
+    yearFilter: function yearFilter(studentYear) {
+      if (studentYear == 1) {
+        return '1st';
+      } else if (studentYear == 2) {
+        return '2nd';
+      } else if (studentYear == 3) {
+        return '3rd';
+      } else if (studentYear == 4) {
+        return '4th';
+      }
     }
   }
 });
@@ -66081,7 +66111,7 @@ var render = function() {
                       _c("td", [
                         _vm._v(
                           " " +
-                            _vm._s(_vm.assignmentResult.equivalent) +
+                            _vm._s(_vm.assignmentResult.finalGrade) +
                             " (" +
                             _vm._s(_vm.assignmentResult.assignment_count) +
                             " of " +
@@ -66413,7 +66443,7 @@ var render = function() {
                     _vm._v(" "),
                     _c("td", { attrs: { colspan: "3" } }, [
                       _vm._v(
-                        " " + _vm._s(_vm.overAllExamResult.equivalent) + "  "
+                        " " + _vm._s(_vm.overAllExamResult.finalGrade) + "  "
                       )
                     ])
                   ])
@@ -66723,7 +66753,7 @@ var render = function() {
                       _c("td", [_vm._v(" Final Grade: ")]),
                       _vm._v(" "),
                       _c("td", { attrs: { colspan: "3" } }, [
-                        _vm._v(_vm._s(_vm.projectData.equivalent))
+                        _vm._v(_vm._s(_vm.projectData.finalGrade))
                       ])
                     ])
                   ],
@@ -67033,7 +67063,7 @@ var render = function() {
                       _c("td", { attrs: { colspan: "4" } }, [
                         _vm._v(
                           " " +
-                            _vm._s(_vm.quizResults.equivalent) +
+                            _vm._s(_vm.quizResults.finalGrade) +
                             " (" +
                             _vm._s(_vm.quizResults.quiz_count) +
                             " of " +
@@ -67348,7 +67378,7 @@ var render = function() {
                     _c("td", [_vm._v(" Final Grade: ")]),
                     _vm._v(" "),
                     _c("td", { attrs: { colspan: "3" } }, [
-                      _vm._v(_vm._s(_vm.overAllRecitationRecord.equivalent))
+                      _vm._v(_vm._s(_vm.overAllRecitationRecord.finalGrade))
                     ])
                   ])
                 ],
@@ -68276,55 +68306,68 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container" }, [
-    _c("br"),
-    _vm._v(" "),
-    _c("h3", [
-      _vm._v("Manage Grades of " + _vm._s(_vm.student_info.student_name) + " ")
-    ]),
-    _vm._v(" "),
-    _c("br"),
-    _vm._v(" "),
-    _c("table", { staticClass: "table" }, [
-      _vm._m(0),
+  return _c(
+    "div",
+    { staticClass: "container" },
+    [
+      _c("br"),
       _vm._v(" "),
-      _c(
-        "tbody",
-        _vm._l(_vm.fetchedSubjectInfo, function(singleSubject) {
-          return _c("tr", { key: singleSubject.subj_code }, [
-            _c("td", { attrs: { scope: "row" } }, [
-              _vm._v(" " + _vm._s(singleSubject.subj_name) + " ")
-            ]),
-            _vm._v(" "),
-            _c(
-              "td",
-              [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "btn btn-primary",
-                    attrs: {
-                      to: {
-                        name: "managestudentgrades",
-                        params: {
-                          student_lrn: _vm.student_info.student_lrn,
-                          student_year: _vm.student_info.student_yr_no_filter,
-                          subject_code: singleSubject.subj_code
+      _c("h3", [
+        _vm._v(
+          "Manage Grades of " + _vm._s(_vm.student_info.student_name) + " "
+        )
+      ]),
+      _vm._v(" "),
+      _c("br"),
+      _vm._v(" "),
+      _c("table", { staticClass: "table" }, [
+        _vm._m(0),
+        _vm._v(" "),
+        _c(
+          "tbody",
+          _vm._l(_vm.fetchedSubjectInfo, function(singleSubject) {
+            return _c("tr", { key: singleSubject.subj_code }, [
+              _c("td", { attrs: { scope: "row" } }, [
+                _vm._v(" " + _vm._s(singleSubject.subj_name) + " ")
+              ]),
+              _vm._v(" "),
+              _c(
+                "td",
+                [
+                  _c(
+                    "router-link",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: {
+                        to: {
+                          name: "managestudentgrades",
+                          params: {
+                            student_lrn: _vm.student_info.student_lrn,
+                            student_year: _vm.student_info.student_yr_no_filter,
+                            subject_code: singleSubject.subj_code
+                          }
                         }
                       }
-                    }
-                  },
-                  [_vm._v(" View Grades ")]
-                )
-              ],
-              1
-            )
-          ])
-        }),
-        0
+                    },
+                    [_vm._v(" View Grades ")]
+                  )
+                ],
+                1
+              )
+            ])
+          }),
+          0
+        )
+      ]),
+      _vm._v(" "),
+      _c(
+        "router-link",
+        { staticClass: "btn btn-danger", attrs: { to: "/managegrades" } },
+        [_vm._v(" Back ")]
       )
-    ])
-  ])
+    ],
+    1
+  )
 }
 var staticRenderFns = [
   function() {
@@ -69777,7 +69820,7 @@ var render = function() {
     _c("br"),
     _vm._v(" "),
     _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col-sm-12 col-md-6 col-lg-6" }, [
+      _c("div", { staticClass: "col-sm-12 col-md-12 col-lg-12" }, [
         _c("h5", [_vm._v(" Print By Year And Section ")]),
         _vm._v(" "),
         _c("table", [
@@ -69796,19 +69839,24 @@ var render = function() {
                   ],
                   staticClass: "form-control",
                   on: {
-                    change: function($event) {
-                      var $$selectedVal = Array.prototype.filter
-                        .call($event.target.options, function(o) {
-                          return o.selected
-                        })
-                        .map(function(o) {
-                          var val = "_value" in o ? o._value : o.value
-                          return val
-                        })
-                      _vm.sltLrnYear = $event.target.multiple
-                        ? $$selectedVal
-                        : $$selectedVal[0]
-                    }
+                    change: [
+                      function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.sltLrnYear = $event.target.multiple
+                          ? $$selectedVal
+                          : $$selectedVal[0]
+                      },
+                      function($event) {
+                        return _vm.showSubjectInSpecificYear()
+                      }
+                    ]
                   }
                 },
                 [
@@ -69867,6 +69915,52 @@ var render = function() {
                   _vm._l(_vm.studentSection, function(fetchSection) {
                     return _c("option", { key: fetchSection.section }, [
                       _vm._v(" " + _vm._s(fetchSection.section))
+                    ])
+                  })
+                ],
+                2
+              )
+            ]),
+            _vm._v(" "),
+            _c("td", [
+              _c(
+                "select",
+                {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.sltSubject,
+                      expression: "sltSubject"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  on: {
+                    change: function($event) {
+                      var $$selectedVal = Array.prototype.filter
+                        .call($event.target.options, function(o) {
+                          return o.selected
+                        })
+                        .map(function(o) {
+                          var val = "_value" in o ? o._value : o.value
+                          return val
+                        })
+                      _vm.sltSubject = $event.target.multiple
+                        ? $$selectedVal
+                        : $$selectedVal[0]
+                    }
+                  }
+                },
+                [
+                  _c(
+                    "option",
+                    { attrs: { value: "", disabled: "", selected: "" } },
+                    [_vm._v("Select Subject")]
+                  ),
+                  _vm._v(" "),
+                  _vm._l(_vm.fetchedSubjectInfo, function(fetchSubject) {
+                    return _c("option", { key: fetchSubject.subj_name }, [
+                      _vm._v(" " + _vm._s(fetchSubject.subj_name))
                     ])
                   })
                 ],

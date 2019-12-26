@@ -19,6 +19,8 @@
             </tbody>
         </table>
 
+            <router-link to="/managegrades" class="btn btn-danger"> Back </router-link>
+
     </div>
 </template>
 

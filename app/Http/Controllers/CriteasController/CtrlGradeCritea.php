@@ -25,30 +25,29 @@ class CtrlGradeCritea extends Controller
         foreach($fetchAllGradeCritea as $singleCritea) {
 
             if($singleCritea->critea == 'Assignment') {
-                $assignmentRecords = $critea->calculateAssignmentRecords($student_lrn, $subject_code);
+                $assignmentRecord = $critea->calculateAssignmentRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Exam') {
-                $examRecords = $critea->calculateExamRecords($student_lrn, $subject_code);
+                $examRecord = $critea->calculateExamRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Project') {
-                $projectRecords = $critea->calculateProjectRecords($student_lrn, $subject_code);
+                $projectRecord = $critea->calculateProjectRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Quiz') {
-                $quizRecords = $critea->calculateQuizRecords($student_lrn, $subject_code);
+                $quizRecord = $critea->calculateQuizRecords($student_lrn, $subject_code);
             }
             else if($singleCritea->critea == 'Recitation') {
-                $recitationRecords = $critea->calculateRecitationRecords($student_lrn, $subject_code);
+                $recitationRecord = $critea->calculateRecitationRecords($student_lrn, $subject_code);
             }
-
         
         }
-
+  
         return response()->json([
-            'quizRecords' => $quizRecords,
-            'assignmentRecords' => $assignmentRecords,
-            'examRecords' => $examRecords,
-            'projectRecords' => $projectRecords, 
-            'recitationRecords' => $recitationRecords
+            'quizRecords' => $quizRecord,
+            'assignmentRecords' => $assignmentRecord,
+            'examRecords' => $examRecord,
+            'projectRecords' => $projectRecord, 
+            'recitationRecords' => $recitationRecord
         ]); 
     }
 

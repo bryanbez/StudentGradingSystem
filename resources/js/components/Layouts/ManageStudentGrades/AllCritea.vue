@@ -148,6 +148,7 @@ export default {
                 this.projectRecords = response.data.projectRecords[0];
                 this.quizRecords = response.data.quizRecords[0];
                 this.recitationRecords = response.data.recitationRecords[0];
+                console.log(response.data.examRecords[0])
 
             }
         );
@@ -155,9 +156,11 @@ export default {
     },
     computed: {
       calculateFinalGrade: function() {
-         let finalGrade = parseInt(this.examRecords.equivalent) + parseInt(this.assignmentRecords.equivalent) +
-                parseInt(this.projectRecords.equivalent) + parseInt(this.quizRecords.equivalent) +
-                parseInt(this.recitationRecords.equivalent);
+      
+         let finalGrade = parseFloat(this.examRecords.equivalent) + parseFloat(this.assignmentRecords.equivalent) +
+                parseFloat(this.projectRecords.equivalent) + parseFloat(this.quizRecords.equivalent) +
+                parseFloat(this.recitationRecords.equivalent);
+                  console.log(finalGrade);
           return finalGrade;
       },
 
